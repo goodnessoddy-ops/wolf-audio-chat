@@ -86,7 +86,6 @@ const server = http.createServer(async (req, res) => {
 
         apiReq.write(apiData);
         apiReq.end();
-
       } catch (error) {
         console.error('Server Error:', error);
         res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -103,5 +102,3 @@ server.listen(PORT, () => {
   console.log(`🐺 Wolf server running on port ${PORT}`);
   console.log(`📡 Server ready at http://localhost:${PORT}`);
 });
-// Redirect to the actual server in the server folder
-require('./server/server.js');
