@@ -1,12 +1,15 @@
 {
   "name": "wolf-audio-chat-server",
   "version": "1.0.0",
-  "description": "Secure backend for Wolf Audio Chat",
+  "description": "Wolf Audio Chat Server with Groq AI",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "keywords": ["voice", "chat", "ai", "groq"],
+  "author": "Your Name",
+  "license": "MIT"
 }

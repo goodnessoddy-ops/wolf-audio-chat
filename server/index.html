@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wolf Audio Chat - AI Powered</title>
+    <title>Wolf Audio Chat</title>
     <style>
         * {
             margin: 0;
@@ -11,35 +11,12 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --bg-primary: linear-gradient(135deg, #1a4d2e 0%, #2d5f3f 50%, #1a4d2e 100%);
-            --bg-card: rgba(255,255,255,0.95);
-            --text-primary: #000;
-            --text-secondary: #666;
-            --wolf-opacity: 0.2;
-        }
-
-        [data-theme="dark"] {
-            --bg-primary: linear-gradient(135deg, #0a1f14 0%, #1a3322 50%, #0a1f14 100%);
-            --bg-card: rgba(30,30,30,0.95);
-            --text-primary: #fff;
-            --text-secondary: #aaa;
-            --wolf-opacity: 0.1;
-        }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
+            background: linear-gradient(135deg, #1a4d2e 0%, #2d5f3f 50%, #1a4d2e 100%);
             min-height: 100vh;
             padding: 20px;
             position: relative;
-            transition: background 0.3s ease;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
         }
 
         .wolf-bg {
@@ -49,142 +26,23 @@
             transform: translate(-50%, -50%);
             width: 900px;
             height: 900px;
-            opacity: var(--wolf-opacity);
+            opacity: 0.2;
             z-index: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        @media (max-width: 768px) {
-            .wolf-bg {
-                width: 600px;
-                height: 600px;
-            }
         }
 
         .main-container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
         }
 
         .title {
             text-align: center;
             color: white;
             font-size: 3em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            flex: 1;
-        }
-
-        @media (max-width: 768px) {
-            .title {
-                font-size: 2em;
-                width: 100%;
-            }
-        }
-
-        .controls-panel {
-            background: var(--bg-card);
-            border-radius: 15px;
-            padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        }
-
-        @media (max-width: 768px) {
-            .controls-panel {
-                padding: 15px;
-            }
-        }
-
-        .control-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .control-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .control-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        @media (max-width: 768px) {
-            .control-group {
-                min-width: 100%;
-            }
-        }
-
-        .control-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-
-        .control-group select {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #1a4d2e;
-            border-radius: 8px;
-            font-size: 14px;
-            background: white;
-            color: #000;
-            cursor: pointer;
-        }
-
-        [data-theme="dark"] .control-group select {
-            background: #2a2a2a;
-            color: #fff;
-            border-color: #2d5f3f;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .icon-button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s;
-            background: #1a4d2e;
-            color: white;
-        }
-
-        .icon-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .icon-button.active {
-            background: #ff6b6b;
-        }
-
-        @media (max-width: 768px) {
-            .icon-button {
-                flex: 1;
-                min-width: calc(50% - 5px);
-            }
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
         .giant-button {
@@ -205,20 +63,9 @@
             transition: all 0.3s;
         }
 
-        @media (max-width: 768px) {
-            .giant-button {
-                padding: 30px 40px;
-                font-size: 24px;
-            }
-        }
-
         .giant-button:hover:not(:disabled) {
             transform: scale(1.05);
             box-shadow: 0 15px 50px rgba(0,255,0,0.7);
-        }
-
-        .giant-button:active:not(:disabled) {
-            transform: scale(0.98);
         }
 
         .giant-button.stop-btn {
@@ -230,27 +77,18 @@
             background: #666;
             cursor: not-allowed;
             opacity: 0.5;
-            transform: scale(1);
         }
 
         .chat-box {
-            background: var(--bg-card);
+            background: rgba(255,255,255,0.95);
             border-radius: 20px;
             padding: 30px;
             margin: 20px auto;
-            max-width: 800px;
+            max-width: 700px;
             min-height: 400px;
             max-height: 600px;
             overflow-y: auto;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-
-        @media (max-width: 768px) {
-            .chat-box {
-                padding: 15px;
-                min-height: 300px;
-                max-height: 400px;
-            }
         }
 
         .message {
@@ -260,14 +98,6 @@
             max-width: 80%;
             word-wrap: break-word;
             animation: slideIn 0.3s ease;
-            line-height: 1.5;
-        }
-
-        @media (max-width: 768px) {
-            .message {
-                max-width: 90%;
-                padding: 12px 15px;
-            }
         }
 
         @keyframes slideIn {
@@ -286,22 +116,12 @@
             color: #000;
         }
 
-        [data-theme="dark"] .assistant-msg {
-            background: #3a3a3a;
-            color: #fff;
-        }
-
         .interim-msg {
             background: #f0f0f0;
             color: #999;
             font-style: italic;
             border: 2px dashed #ccc;
             margin-left: auto;
-        }
-
-        [data-theme="dark"] .interim-msg {
-            background: #2a2a2a;
-            border-color: #555;
         }
 
         .status-bar {
@@ -313,18 +133,6 @@
             font-weight: bold;
             margin: 20px auto;
             max-width: 600px;
-        }
-
-        @media (max-width: 768px) {
-            .status-bar {
-                font-size: 16px;
-                padding: 12px;
-            }
-        }
-
-        [data-theme="dark"] .status-bar {
-            background: rgba(30,30,30,0.9);
-            color: #fff;
         }
 
         .listening {
@@ -355,18 +163,11 @@
             border-radius: 15px;
             margin: 20px auto;
             max-width: 600px;
-            position: relative;
             overflow: hidden;
         }
 
         .visualizer.active {
             display: block;
-        }
-
-        @media (max-width: 768px) {
-            .visualizer {
-                height: 60px;
-            }
         }
 
         .volume-bar {
@@ -378,65 +179,9 @@
 
         .empty-msg {
             text-align: center;
-            color: var(--text-secondary);
+            color: #666;
             padding: 50px;
             font-size: 18px;
-            line-height: 1.6;
-        }
-
-        @media (max-width: 768px) {
-            .empty-msg {
-                padding: 30px 15px;
-                font-size: 16px;
-            }
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            width: 90%;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--text-primary);
-        }
-
-        .close-button {
-            background: none;
-            border: none;
-            font-size: 30px;
-            cursor: pointer;
-            color: var(--text-primary);
         }
     </style>
 </head>
@@ -452,7 +197,6 @@
             <circle cx="118" cy="75" r="9" fill="#000"/>
             <circle cx="120" cy="73" r="4" fill="#fff"/>
             <ellipse cx="100" cy="105" rx="8" ry="10" fill="#000"/>
-            <path d="M100 105 Q95 112 88 110 M100 105 Q105 112 112 110" stroke="#000" stroke-width="3" fill="none"/>
             <ellipse cx="100" cy="145" rx="45" ry="40"/>
             <rect x="65" y="165" width="15" height="50" rx="7"/>
             <rect x="120" y="165" width="15" height="50" rx="7"/>
@@ -460,56 +204,10 @@
     </svg>
 
     <div class="main-container">
-        <div class="header">
-            <h1 class="title">🐺 WOLF AUDIO CHAT 🐺</h1>
-        </div>
-
-        <div class="controls-panel">
-            <div class="control-row">
-                <div class="control-group">
-                    <label for="modelSelect">⚡ AI Model</label>
-                    <select id="modelSelect">
-                        <option value="llama-3.3-70b-versatile">⚡ Fast</option>
-                        <option value="llama-3.1-70b-versatile">⚖️ Balanced</option>
-                        <option value="mixtral-8x7b-32768">🧠 Smart</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="personalitySelect">🎭 Personality</label>
-                    <select id="personalitySelect">
-                        <option value="friendly">Friendly & Warm</option>
-                        <option value="professional">Professional</option>
-                        <option value="funny">Funny & Humorous</option>
-                        <option value="serious">Serious & Direct</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="languageSelect">🌍 Language</label>
-                    <select id="languageSelect">
-                        <option value="en-US">English (US)</option>
-                        <option value="en-GB">English (UK)</option>
-                        <option value="es-ES">Español</option>
-                        <option value="fr-FR">Français</option>
-                        <option value="de-DE">Deutsch</option>
-                        <option value="it-IT">Italiano</option>
-                        <option value="pt-BR">Português</option>
-                        <option value="ja-JP">日本語</option>
-                        <option value="zh-CN">中文</option>
-                    </select>
-                </div>
-            </div>
-            <div class="control-row">
-                <div class="button-group">
-                    <button class="icon-button" id="themeToggle">🌙 Dark Mode</button>
-                    <button class="icon-button" id="muteToggle">🔊 Voice On</button>
-                    <button class="icon-button" id="historyButton">📝 History</button>
-                    <button class="icon-button" id="clearButton">🗑️ Clear Chat</button>
-                </div>
-            </div>
-        </div>
+        <h1 class="title">🐺 WOLF AUDIO CHAT 🐺</h1>
 
         <div class="status-bar" id="statusBar">
-            🐺 Ready to chat - Click start below!
+            🐺 Ready - Click the button below!
         </div>
 
         <div class="visualizer" id="visualizer">
@@ -526,20 +224,10 @@
 
         <div class="chat-box" id="chatBox">
             <div class="empty-msg" id="emptyMsg">
-                🐺 Hello there! I'm Wolf, your AI companion!<br><br>
-                Click "START LISTENING" and ask me anything you'd like.<br><br>
-                <small style="color: var(--text-secondary);">I can answer questions, have natural conversations, and understand your emotions. I'm designed to speak naturally and fluently!</small>
+                🐺 Hey there! I'm Wolf, your AI companion!<br><br>
+                Click "START LISTENING" and ask me anything!<br><br>
+                <small style="color: #999;">I can answer questions, have conversations, and understand emotions!</small>
             </div>
-        </div>
-    </div>
-
-    <div class="modal" id="historyModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">📝 Conversation History</div>
-                <button class="close-button" id="closeModal">&times;</button>
-            </div>
-            <div id="historyList"></div>
         </div>
     </div>
 
@@ -551,166 +239,38 @@
         const emptyMsg = document.getElementById('emptyMsg');
         const visualizer = document.getElementById('visualizer');
         const volumeBar = document.getElementById('volumeBar');
-        const modelSelect = document.getElementById('modelSelect');
-        const personalitySelect = document.getElementById('personalitySelect');
-        const languageSelect = document.getElementById('languageSelect');
-        const themeToggle = document.getElementById('themeToggle');
-        const muteToggle = document.getElementById('muteToggle');
-        const historyButton = document.getElementById('historyButton');
-        const clearButton = document.getElementById('clearButton');
-        const historyModal = document.getElementById('historyModal');
-        const closeModal = document.getElementById('closeModal');
-        const historyList = document.getElementById('historyList');
 
         let recognition;
         let synthesis = window.speechSynthesis;
         let isListening = false;
         let interimElement = null;
         let conversationHistory = [];
-        let audioContext;
-        let analyser;
-        let microphone;
-        let isMuted = false;
-        let savedConversations = JSON.parse(localStorage.getItem('wolfConversations') || '[]');
-
-        const personalities = {
-            friendly: 'You are Wolf, a warm, friendly, and highly articulate AI voice assistant. Your responses should be conversational and natural, as if you\'re speaking to a good friend. Keep your answers concise (2-3 sentences maximum) since they\'ll be read aloud. Use perfect, fluent English with impeccable grammar and natural flow. Be empathetic, emotionally intelligent, and genuinely interested in helping.',
-            professional: 'You are Wolf, a professional and efficient AI assistant. Provide clear, concise, and accurate information in a business-like tone. Keep responses brief (2-3 sentences) and focused. Use formal language while remaining approachable.',
-            funny: 'You are Wolf, a witty and humorous AI assistant with a great sense of humor. Make conversations fun and entertaining with clever jokes and playful responses. Keep it light and friendly (2-3 sentences), but always be helpful. Use puns, wordplay, and amusing observations when appropriate.',
-            serious: 'You are Wolf, a serious and direct AI assistant. Provide straightforward, factual responses without unnecessary pleasantries. Be concise (2-3 sentences maximum), precise, and to the point. Focus on delivering information efficiently.'
-        };
-
-        const languageNames = {
-            'en-US': 'English',
-            'en-GB': 'English',
-            'es-ES': 'Spanish',
-            'fr-FR': 'French',
-            'de-DE': 'German',
-            'it-IT': 'Italian',
-            'pt-BR': 'Portuguese',
-            'ja-JP': 'Japanese',
-            'zh-CN': 'Chinese'
-        };
-
-        const savedTheme = localStorage.getItem('wolfTheme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        themeToggle.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('wolfTheme', newTheme);
-            themeToggle.textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
-        });
-
-        muteToggle.addEventListener('click', () => {
-            isMuted = !isMuted;
-            muteToggle.textContent = isMuted ? '🔇 Voice Off' : '🔊 Voice On';
-            muteToggle.classList.toggle('active');
-        });
-
-        clearButton.addEventListener('click', () => {
-            if (confirm('Clear current conversation?')) {
-                conversationHistory = [];
-                chatBox.innerHTML = '<div class="empty-msg">🐺 Chat cleared! Start a new conversation.</div>';
-            }
-        });
-
-        historyButton.addEventListener('click', () => {
-            displayHistory();
-            historyModal.classList.add('active');
-        });
-
-        closeModal.addEventListener('click', () => {
-            historyModal.classList.remove('active');
-        });
-
-        historyModal.addEventListener('click', (e) => {
-            if (e.target === historyModal) {
-                historyModal.classList.remove('active');
-            }
-        });
-
-        function displayHistory() {
-            if (savedConversations.length === 0) {
-                historyList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No saved conversations yet.</p>';
-                return;
-            }
-
-            historyList.innerHTML = savedConversations.map((conv, index) => `
-                <div class="history-item" onclick="loadConversation(${index})">
-                    <div class="history-item-title">${conv.title}</div>
-                    <div class="history-item-preview">${conv.preview}</div>
-                </div>
-            `).join('');
-        }
-
-        window.loadConversation = (index) => {
-            const conv = savedConversations[index];
-            conversationHistory = conv.messages;
-            chatBox.innerHTML = '';
-            conv.messages.forEach(msg => {
-                addMessage(msg.content, msg.role === 'user' ? 'user-msg' : 'assistant-msg');
-            });
-            historyModal.classList.remove('active');
-        };
-
-        function saveConversation() {
-            if (conversationHistory.length < 2) return;
-
-            const title = new Date().toLocaleString();
-            const preview = conversationHistory[0].content.substring(0, 50) + '...';
-
-            savedConversations.unshift({
-                title,
-                preview,
-                messages: [...conversationHistory],
-                timestamp: Date.now()
-            });
-
-            if (savedConversations.length > 20) {
-                savedConversations = savedConversations.slice(0, 20);
-            }
-
-            localStorage.setItem('wolfConversations', JSON.stringify(savedConversations));
-        }
 
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = true;
-            recognition.maxAlternatives = 1;
-
-            languageSelect.addEventListener('change', () => {
-                recognition.lang = languageSelect.value;
-            });
-
-            recognition.lang = languageSelect.value;
+            recognition.lang = 'en-US';
 
             recognition.onstart = () => {
                 isListening = true;
-                statusBar.textContent = '🐺 I\'m listening! Go ahead and speak...';
+                statusBar.textContent = '🐺 Listening... speak now!';
                 statusBar.className = 'status-bar listening';
                 visualizer.classList.add('active');
             };
 
             recognition.onresult = (event) => {
-                if (synthesis.speaking) {
-                    return;
-                }
+                if (synthesis.speaking) return;
 
                 let interim = '';
                 let final = '';
 
                 for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const transcript = event.results[i][0].transcript;
-                    
                     if (event.results[i].isFinal) {
-                        final += transcript;
+                        final += event.results[i][0].transcript;
                     } else {
-                        interim += transcript;
+                        interim += event.results[i][0].transcript;
                     }
                 }
 
@@ -730,28 +290,21 @@
             };
 
             recognition.onerror = (event) => {
-                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-                    alert('⚠️ Microphone access denied! Please allow access and refresh.');
-                    resetApp();
-                } else if (event.error === 'no-speech') {
-                    console.log('No speech detected');
-                } else if (event.error === 'audio-capture') {
-                    alert('❌ Microphone error! Please check your device.');
+                console.error('Recognition error:', event.error);
+                if (event.error === 'not-allowed') {
+                    alert(⚠️ Please allow microphone access!');
                     resetApp();
                 }
             };
 
             recognition.onend = () => {
                 visualizer.classList.remove('active');
-                
                 if (isListening && !synthesis.speaking) {
                     setTimeout(() => {
                         if (isListening && !synthesis.speaking) {
                             try {
                                 recognition.start();
-                            } catch (e) {
-                                console.log('Could not restart:', e);
-                            }
+                            } catch (e) {}
                         }
                     }, 100);
                 }
@@ -783,9 +336,7 @@
         }
 
         async function getAIResponse(userInput) {
-            const API_ENDPOINT ='https://goodnessoddy-ops-wolf-server.onrender.com/api/chat';
-            
-            statusBar.textContent = '🤖 Let me think about that...';
+            statusBar.textContent = '🤖 Thinking...';
             statusBar.className = 'status-bar thinking';
 
             conversationHistory.push({
@@ -793,40 +344,153 @@
                 content: userInput
             });
 
-            const selectedLang = languageSelect.value;
-            const langName = languageNames[selectedLang];
-            const personality = personalities[personalitySelect.value];
-            const systemPrompt = personality + (selectedLang !== 'en-US' && selectedLang !== 'en-GB' ? ` Always respond in ${langName}.` : '');
-
             try {
-                const response = await fetch(API_ENDPOINT, {
+                console.log('🧠 Calling AI...');
+
+                const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        model: modelSelect.value,
-                        messages: [
-                            {
-                                role: 'system',
-                                content: systemPrompt
-                            },
-                            ...conversationHistory
-                        ],
+                        model: 'llama-3.3-70b-versatile',
+                        messages: conversationHistory.map(m => ({
+                            role: m.role,
+                            content: m.content
+                        })),
                         temperature: 0.8,
                         max_tokens: 150
                     })
                 });
 
+                console.log('Response status:', response.status);
+
                 if (!response.ok) {
-                    throw new Error(`API error: ${response.status}`);
+                    throw new Error('API failed');
                 }
 
                 const data = await response.json();
                 
                 if (data.choices && data.choices[0] && data.choices[0].message) {
                     const aiResponse = data.choices[0].message.content;
+                    console.log('✅ AI Response:', aiResponse);
                     
                     conversationHistory.push({
                         role: 'assistant',
-                        content:
+                        content: aiResponse
+                    });
+
+                    addMessage(aiResponse, 'assistant-msg');
+                    speak(aiResponse);
+                    return;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+
+            const fallback = "I'm having trouble connecting right now, but I'm still here! Could you try again?";
+            addMessage(fallback, 'assistant-msg');
+            speak(fallback);
+        }
+
+        function speak(text) {
+            statusBar.textContent = '🐺 Speaking...';
+            statusBar.className = 'status-bar speaking';
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.92;
+            utterance.pitch = 1.1;
+            
+            utterance.onstart = () => {
+                if (recognition && isListening) {
+                    try {
+                        recognition.stop();
+                    } catch (e) {}
+                }
+            };
+            
+            utterance.onend = () => {
+                setTimeout(() => {
+                    if (isListening) {
+                        statusBar.textContent = '🐺 Listening...';
+                        statusBar.className = 'status-bar listening';
+                        try {
+                            recognition.start();
+                        } catch (e) {}
+                    } else {
+                        resetApp();
+                    }
+                }, 500);
+            };
+            
+            synthesis.speak(utterance);
+        }
+
+        function resetApp() {
+            isListening = false;
+            startButton.style.display = 'block';
+            stopButton.style.display = 'none';
+            statusBar.textContent = '🐺 Ready!';
+            statusBar.className = 'status-bar';
+            visualizer.classList.remove('active');
+        }
+
+        startButton.addEventListener('click', async () => {
+            console.log('🐺 START clicked!');
+            
+            if (!recognition) {
+                alert('Speech recognition not supported. Use Chrome, Edge, or Safari.');
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: true
+                    }
+                });
+
+                console.log('✅ Microphone ready!');
+                
+                startButton.style.display = 'none';
+                stopButton.style.display = 'block';
+                
+                isListening = true;
+                recognition.start();
+
+                const audioContext = new AudioContext();
+                const analyser = audioContext.createAnalyser();
+                const microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                
+                function draw() {
+                    if (!isListening) return;
+                    requestAnimationFrame(draw);
+                    analyser.getByteFrequencyData(dataArray);
+                    const avg = dataArray.reduce((a,b) => a+b) / dataArray.length;
+                    volumeBar.style.width = Math.min((avg / 255) * 200, 100) + '%';
+                }
+                draw();
+                
+            } catch (err) {
+                console.error('Mic error:', err);
+                alert('⚠️ Microphone access denied!');
+            }
+        });
+
+        stopButton.addEventListener('click', () => {
+            console.log('🐺 STOP clicked!');
+            isListening = false;
+            if (recognition) recognition.stop();
+            if (synthesis.speaking) synthesis.cancel();
+            resetApp();
+        });
+
+        console.log('🐺 Wolf ready!');
+    </script>
+</body>
+</html>
