@@ -103,3 +103,5 @@ server.listen(PORT, () => {
   console.log(`🐺 Wolf server running on port ${PORT}`);
   console.log(`📡 Server ready at http://localhost:${PORT}`);
 });
+// Redirect to the actual server in the server folder
+require('./server/server.js');
