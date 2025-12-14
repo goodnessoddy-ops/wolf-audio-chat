@@ -68,27 +68,17 @@
             z-index: 1;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
         .title {
             text-align: center;
             color: white;
             font-size: 3em;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            flex: 1;
+            margin-bottom: 20px;
         }
 
         @media (max-width: 768px) {
             .title {
                 font-size: 2em;
-                width: 100%;
             }
         }
 
@@ -230,7 +220,6 @@
             background: #666;
             cursor: not-allowed;
             opacity: 0.5;
-            transform: scale(1);
         }
 
         .chat-box {
@@ -261,13 +250,6 @@
             word-wrap: break-word;
             animation: slideIn 0.3s ease;
             line-height: 1.5;
-        }
-
-        @media (max-width: 768px) {
-            .message {
-                max-width: 90%;
-                padding: 12px 15px;
-            }
         }
 
         @keyframes slideIn {
@@ -355,18 +337,11 @@
             border-radius: 15px;
             margin: 20px auto;
             max-width: 600px;
-            position: relative;
             overflow: hidden;
         }
 
         .visualizer.active {
             display: block;
-        }
-
-        @media (max-width: 768px) {
-            .visualizer {
-                height: 60px;
-            }
         }
 
         .volume-bar {
@@ -382,13 +357,6 @@
             padding: 50px;
             font-size: 18px;
             line-height: 1.6;
-        }
-
-        @media (max-width: 768px) {
-            .empty-msg {
-                padding: 30px 15px;
-                font-size: 16px;
-            }
         }
 
         .modal {
@@ -439,30 +407,7 @@
             color: var(--text-primary);
         }
 
-        .history-item {
-            padding: 15px;
-            margin-bottom: 10px;
-            background: rgba(26, 77, 46, 0.1);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
 
-        .history-item:hover {
-            background: rgba(26, 77, 46, 0.2);
-            transform: translateX(5px);
-        }
-
-        .history-item-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: var(--text-primary);
-        }
-
-        .history-item-preview {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
     </style>
 </head>
 <body>
@@ -485,9 +430,7 @@
     </svg>
 
     <div class="main-container">
-        <div class="header">
-            <h1 class="title">🐺 WOLF AUDIO CHAT 🐺</h1>
-        </div>
+        <h1 class="title">🐺 WOLF AUDIO CHAT 🐺</h1>
 
         <div class="controls-panel">
             <div class="control-row">
@@ -513,6 +456,10 @@
                     <select id="languageSelect">
                         <option value="en-US">English (US)</option>
                         <option value="en-GB">English (UK)</option>
+                        <option value="pcm-NG">Nigerian Pidgin</option>
+                        <option value="yo-NG">Yoruba</option>
+                        <option value="ig-NG">Igbo</option>
+                        <option value="ha-NG">Hausa</option>
                         <option value="es-ES">Español</option>
                         <option value="fr-FR">Français</option>
                         <option value="de-DE">Deutsch</option>
@@ -553,7 +500,7 @@
             <div class="empty-msg" id="emptyMsg">
                 🐺 Hello there! I'm Wolf, your AI companion!<br><br>
                 Click "START LISTENING" and ask me anything you'd like.<br><br>
-                <small style="color: var(--text-secondary);">I can answer questions, have natural conversations, and understand your emotions. I'm designed to speak naturally and fluently!</small>
+                <small style="color: var(--text-secondary);">I can answer questions, have natural conversations, and understand your emotions!</small>
             </div>
         </div>
     </div>
@@ -569,9 +516,6 @@
     </div>
 
     <script>
-        // UPDATED API ENDPOINT - Change this to your Render backend URL
-        const API_ENDPOINT = 'https://wolf-audio-chat.onrender.com/api/chat';
-
         const startButton = document.getElementById('startButton');
         const stopButton = document.getElementById('stopButton');
         const statusBar = document.getElementById('statusBar');
@@ -590,41 +534,40 @@
         const closeModal = document.getElementById('closeModal');
         const historyList = document.getElementById('historyList');
 
+        // Backend API endpoint
+        const API_ENDPOINT = 'https://wolf-audio-chat.onrender.com/api/chat';
+
         let recognition;
         let synthesis = window.speechSynthesis;
         let isListening = false;
         let interimElement = null;
         let conversationHistory = [];
+        let audioContext;
+        let analyser;
+        let microphone;
         let isMuted = false;
         let savedConversations = JSON.parse(localStorage.getItem('wolfConversations') || '[]');
 
         const personalities = {
-            friendly: 'You are Wolf, a warm, friendly, and highly articulate AI voice assistant. Your responses should be conversational and natural, as if you\'re speaking to a good friend. Keep your answers concise (2-3 sentences maximum) since they\'ll be read aloud. Use perfect, fluent English with impeccable grammar and natural flow. Be empathetic, emotionally intelligent, and genuinely interested in helping.',
-            professional: 'You are Wolf, a professional and efficient AI assistant. Provide clear, concise, and accurate information in a business-like tone. Keep responses brief (2-3 sentences) and focused. Use formal language while remaining approachable.',
-            funny: 'You are Wolf, a witty and humorous AI assistant with a great sense of humor. Make conversations fun and entertaining with clever jokes and playful responses. Keep it light and friendly (2-3 sentences), but always be helpful. Use puns, wordplay, and amusing observations when appropriate.',
-            serious: 'You are Wolf, a serious and direct AI assistant. Provide straightforward, factual responses without unnecessary pleasantries. Be concise (2-3 sentences maximum), precise, and to the point. Focus on delivering information efficiently.'
+            friendly: 'You are Wolf, a warm, friendly, and highly articulate AI voice assistant. Keep your answers concise (2-3 sentences) since they\'ll be read aloud. Use perfect, fluent English with natural flow. Be empathetic and genuinely interested in helping.',
+            professional: 'You are Wolf, a professional and efficient AI assistant. Provide clear, concise information in a business-like tone. Keep responses brief (2-3 sentences).',
+            funny: 'You are Wolf, a witty and humorous AI assistant. Make conversations fun with clever jokes. Keep it light (2-3 sentences) but always helpful.',
+            serious: 'You are Wolf, a serious and direct AI assistant. Provide straightforward, factual responses. Be concise (2-3 sentences), precise, and to the point.'
         };
 
         const languageNames = {
-            'en-US': 'English',
-            'en-GB': 'English',
-            'es-ES': 'Spanish',
-            'fr-FR': 'French',
-            'de-DE': 'German',
-            'it-IT': 'Italian',
-            'pt-BR': 'Portuguese',
-            'ja-JP': 'Japanese',
-            'zh-CN': 'Chinese'
+            'en-US': 'English', 'en-GB': 'English',
+            'es-ES': 'Spanish', 'fr-FR': 'French', 'de-DE': 'German',
+            'it-IT': 'Italian', 'pt-BR': 'Portuguese', 'ja-JP': 'Japanese', 'zh-CN': 'Chinese'
         };
 
-        // Theme management
         const savedTheme = localStorage.getItem('wolfTheme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
         themeToggle.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
 
         themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            const current = document.documentElement.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('wolfTheme', newTheme);
             themeToggle.textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
@@ -639,7 +582,7 @@
         clearButton.addEventListener('click', () => {
             if (confirm('Clear current conversation?')) {
                 conversationHistory = [];
-                chatBox.innerHTML = '<div class="empty-msg">🐺 Chat cleared! Start a new conversation.</div>';
+                chatBox.innerHTML = '<div class="empty-msg">🐺 Chat cleared!</div>';
             }
         });
 
@@ -648,61 +591,44 @@
             historyModal.classList.add('active');
         });
 
-        closeModal.addEventListener('click', () => {
-            historyModal.classList.remove('active');
-        });
-
+        closeModal.addEventListener('click', () => historyModal.classList.remove('active'));
         historyModal.addEventListener('click', (e) => {
-            if (e.target === historyModal) {
-                historyModal.classList.remove('active');
-            }
+            if (e.target === historyModal) historyModal.classList.remove('active');
         });
 
         function displayHistory() {
             if (savedConversations.length === 0) {
-                historyList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No saved conversations yet.</p>';
+                historyList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">No saved conversations yet.</p>';
                 return;
             }
-
-            historyList.innerHTML = savedConversations.map((conv, index) => `
-                <div class="history-item" onclick="loadConversation(${index})">
-                    <div class="history-item-title">${conv.title}</div>
-                    <div class="history-item-preview">${conv.preview}</div>
+            historyList.innerHTML = savedConversations.map((conv, i) => `
+                <div style="padding:15px;margin:10px 0;background:rgba(26,77,46,0.1);border-left:4px solid #1a4d2e;border-radius:5px;cursor:pointer;" onclick="loadConversation(${i})">
+                    <div style="font-weight:600;color:var(--text-primary);margin-bottom:5px;">${conv.title}</div>
+                    <div style="font-size:14px;color:var(--text-secondary);">${conv.preview}</div>
                 </div>
             `).join('');
         }
 
-        window.loadConversation = (index) => {
-            const conv = savedConversations[index];
+        window.loadConversation = (i) => {
+            const conv = savedConversations[i];
             conversationHistory = conv.messages;
             chatBox.innerHTML = '';
-            conv.messages.forEach(msg => {
-                addMessage(msg.content, msg.role === 'user' ? 'user-msg' : 'assistant-msg');
-            });
+            conv.messages.forEach(msg => addMessage(msg.content, msg.role === 'user' ? 'user-msg' : 'assistant-msg'));
             historyModal.classList.remove('active');
         };
 
         function saveConversation() {
             if (conversationHistory.length < 2) return;
-
-            const title = new Date().toLocaleString();
-            const preview = conversationHistory[0].content.substring(0, 50) + '...';
-
             savedConversations.unshift({
-                title,
-                preview,
+                title: new Date().toLocaleString(),
+                preview: conversationHistory[0].content.substring(0, 50) + '...',
                 messages: [...conversationHistory],
                 timestamp: Date.now()
             });
-
-            if (savedConversations.length > 20) {
-                savedConversations = savedConversations.slice(0, 20);
-            }
-
+            if (savedConversations.length > 20) savedConversations = savedConversations.slice(0, 20);
             localStorage.setItem('wolfConversations', JSON.stringify(savedConversations));
         }
 
-        // Speech Recognition Setup
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
@@ -710,43 +636,25 @@
             recognition.interimResults = true;
             recognition.maxAlternatives = 1;
 
-            languageSelect.addEventListener('change', () => {
-                recognition.lang = languageSelect.value;
-            });
-
+            languageSelect.addEventListener('change', () => recognition.lang = languageSelect.value);
             recognition.lang = languageSelect.value;
 
             recognition.onstart = () => {
                 isListening = true;
-                statusBar.textContent = '🐺 I\'m listening! Go ahead and speak...';
+                statusBar.textContent = '🐺 I\'m listening!';
                 statusBar.className = 'status-bar listening';
                 visualizer.classList.add('active');
-                startButton.style.display = 'none';
-                stopButton.style.display = 'block';
             };
 
             recognition.onresult = (event) => {
-                if (synthesis.speaking) {
-                    return;
-                }
-
-                let interim = '';
-                let final = '';
-
+                if (synthesis.speaking) return;
+                let interim = '', final = '';
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     const transcript = event.results[i][0].transcript;
-                    
-                    if (event.results[i].isFinal) {
-                        final += transcript;
-                    } else {
-                        interim += transcript;
-                    }
+                    if (event.results[i].isFinal) final += transcript;
+                    else interim += transcript;
                 }
-
-                if (interim) {
-                    showInterim(interim);
-                }
-
+                if (interim) showInterim(interim);
                 if (final && final.trim()) {
                     if (interimElement) {
                         interimElement.remove();
@@ -759,76 +667,29 @@
             };
 
             recognition.onerror = (event) => {
-                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                if (event.error === 'not-allowed') {
                     alert('⚠️ Microphone access denied! Please allow access and refresh.');
                     resetApp();
-                } else if (event.error === 'no-speech') {
-                    console.log('No speech detected');
                 } else if (event.error === 'audio-capture') {
-                    alert('❌ Microphone error! Please check your device.');
+                    alert('❌ Microphone error! Check your device.');
                     resetApp();
                 }
             };
 
             recognition.onend = () => {
                 visualizer.classList.remove('active');
-                
                 if (isListening && !synthesis.speaking) {
                     setTimeout(() => {
                         if (isListening && !synthesis.speaking) {
-                            try {
-                                recognition.start();
-                            } catch (e) {
-                                console.log('Could not restart:', e);
-                            }
+                            try { recognition.start(); } catch (e) {}
                         }
                     }, 100);
                 }
             };
-        } else {
-            startButton.disabled = true;
-            statusBar.textContent = '❌ Speech recognition not supported in this browser';
-            statusBar.className = 'status-bar';
-        }
-
-        startButton.addEventListener('click', () => {
-            if (recognition) {
-                recognition.start();
-            }
-        });
-
-        stopButton.addEventListener('click', () => {
-            isListening = false;
-            if (recognition) {
-                recognition.stop();
-            }
-            if (synthesis.speaking) {
-                synthesis.cancel();
-            }
-            statusBar.textContent = '🐺 Stopped. Click START to resume.';
-            statusBar.className = 'status-bar';
-            startButton.style.display = 'block';
-            stopButton.style.display = 'none';
-        });
-
-        function resetApp() {
-            isListening = false;
-            if (recognition) {
-                recognition.stop();
-            }
-            if (synthesis.speaking) {
-                synthesis.cancel();
-            }
-            startButton.style.display = 'block';
-            stopButton.style.display = 'none';
-            statusBar.textContent = '🐺 Ready to chat - Click start below!';
-            statusBar.className = 'status-bar';
         }
 
         function showInterim(text) {
-            if (emptyMsg && emptyMsg.parentNode) {
-                emptyMsg.remove();
-            }
+            if (emptyMsg && emptyMsg.parentNode) emptyMsg.remove();
             if (!interimElement) {
                 interimElement = document.createElement('div');
                 interimElement.className = 'message interim-msg';
@@ -839,9 +700,7 @@
         }
 
         function addMessage(text, className) {
-            if (emptyMsg && emptyMsg.parentNode) {
-                emptyMsg.remove();
-            }
+            if (emptyMsg && emptyMsg.parentNode) emptyMsg.remove();
             const msg = document.createElement('div');
             msg.className = 'message ' + className;
             msg.textContent = text;
@@ -850,18 +709,169 @@
         }
 
         async function getAIResponse(userInput) {
-            statusBar.textContent = '🤖 Let me think about that...';
+            statusBar.textContent = '🤖 Thinking...';
             statusBar.className = 'status-bar thinking';
 
-            conversationHistory.push({
-                role: 'user',
-                content: userInput
-            });
+            conversationHistory.push({ role: 'user', content: userInput });
 
-            const selectedLang = languageSelect.value;
-            const langName = languageNames[selectedLang];
+            const lang = languageSelect.value;
+            const langName = languageNames[lang];
             const personality = personalities[personalitySelect.value];
-            const systemPrompt = personality + (selectedLang !== 'en-US' && selectedLang !== 'en-GB' ? ` Always respond in ${langName}.` : '');
+            const systemPrompt = personality + (lang !== 'en-US' && lang !== 'en-GB' ? ` Always respond in ${langName}.` : '');
 
             try {
                 const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: modelSelect.value,
+                        messages: [{ role: 'system', content: systemPrompt }, ...conversationHistory],
+                        temperature: 0.8,
+                        max_tokens: 150
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    const aiResponse = data.choices[0].message.content;
+                    conversationHistory.push({ role: 'assistant', content: aiResponse });
+                    addMessage(aiResponse, 'assistant-msg');
+                    if (!isMuted) speak(aiResponse);
+                    if (conversationHistory.length % 4 === 0) saveConversation();
+                } else throw new Error('Invalid response');
+            } catch (error) {
+                console.error('AI Error:', error);
+                conversationHistory.pop();
+                const errMsg = "I encountered a hiccup. Try again?";
+                addMessage(errMsg, 'assistant-msg');
+                if (!isMuted) speak(errMsg);
+            }
+        }
+
+        function speak(text) {
+            if (isMuted) {
+                setTimeout(() => {
+                    if (isListening) {
+                        statusBar.textContent = '🐺 I\'m listening...';
+                        statusBar.className = 'status-bar listening';
+                        try { recognition.start(); } catch (e) {}
+                    } else resetApp();
+                }, 500);
+                return;
+            }
+
+            statusBar.textContent = '🐺 Speaking...';
+            statusBar.className = 'status-bar speaking';
+            synthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            const lang = languageSelect.value;
+            const voices = synthesis.getVoices();
+            const langVoices = voices.filter(v => v.lang.startsWith(lang.split('-')[0]));
+            const voice = langVoices.find(v => v.name.includes('Natural') || v.name.includes('Enhanced')) || langVoices[0] || voices.find(v => v.lang.startsWith('en'));
+            if (voice) {
+                utterance.voice = voice;
+                utterance.lang = lang;
+            }
+
+            utterance.onstart = () => {
+                if (recognition && isListening) {
+                    try { recognition.stop(); } catch (e) {}
+                }
+            };
+
+            utterance.onend = () => {
+                setTimeout(() => {
+                    if (isListening) {
+                        statusBar.textContent = '🐺 I\'m listening...';
+                        statusBar.className = 'status-bar listening';
+                        try { recognition.start(); } catch (e) {}
+                    } else resetApp();
+                }, 500);
+            };
+
+            synthesis.speak(utterance);
+        }
+
+        function resetApp() {
+            isListening = false;
+            startButton.style.display = 'block';
+            stopButton.style.display = 'none';
+            statusBar.textContent = '🐺 Ready when you are!';
+            statusBar.className = 'status-bar';
+            visualizer.classList.remove('active');
+            if (microphone) microphone.disconnect();
+            if (audioContext && audioContext.state !== 'closed') audioContext.close();
+            if (conversationHistory.length > 0) saveConversation();
+        }
+
+        startButton.addEventListener('click', async () => {
+            if (!recognition) {
+                alert('❌ Speech recognition not supported! Use Chrome, Edge, or Safari.');
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+                });
+
+                startButton.style.display = 'none';
+                stopButton.style.display = 'block';
+                isListening = true;
+                recognition.start();
+
+                audioContext = new AudioContext();
+                analyser = audioContext.createAnalyser();
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                analyser.fftSize = 256;
+
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                function draw() {
+                    if (!isListening) return;
+                    requestAnimationFrame(draw);
+                    analyser.getByteFrequencyData(dataArray);
+                    const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
+                    volumeBar.style.width = Math.min((avg / 255) * 200, 100) + '%';
+                }
+                draw();
+            } catch (err) {
+                console.error('Microphone error:', err);
+                if (err.name === 'NotAllowedError') {
+                    alert('⚠️ Microphone access denied!\n\nPlease:\n1. Click lock icon in address bar\n2. Allow microphone\n3. Refresh and try again');
+                } else if (err.name === 'NotFoundError') {
+                    alert('❌ No microphone found! Please connect one.');
+                } else {
+                    alert('❌ Microphone error: ' + err.message);
+                }
+                resetApp();
+            }
+        });
+
+        stopButton.addEventListener('click', () => {
+            isListening = false;
+            if (recognition) recognition.stop();
+            if (synthesis.speaking) synthesis.cancel();
+            resetApp();
+        });
+
+        if (synthesis.onvoiceschanged !== undefined) {
+            synthesis.onvoiceschanged = () => console.log('Voices loaded:', synthesis.getVoices().length);
+        }
+
+        console.log('✅ Wolf Audio Chat ready!');
+    </script>
+</body>
+</html>
