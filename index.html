@@ -407,6 +407,147 @@
             color: var(--text-primary);
         }
 
+        .telegram-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+            display: none;
+        }
+
+        .telegram-button {
+            background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 136, 204, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .telegram-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 136, 204, 0.7);
+        }
+
+        .telegram-button svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .telegram-user-info {
+            background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .game-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-container.active {
+            display: flex;
+        }
+
+        .game-content {
+            width: 90%;
+            max-width: 500px;
+            height: 80vh;
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .game-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .game-close {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: calc(100% - 60px);
+            background: #87CEEB;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .game-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .game-menu-button {
+            padding: 20px;
+            background: linear-gradient(135deg, #1a4d2e 0%, #2d5f3f 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .game-menu-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .game-score {
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin: 10px 0;
+        }
+
+        .game-instructions {
+            text-align: center;
+            color: var(--text-secondary);
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
 
     </style>
 </head>
@@ -430,6 +571,10 @@
     </svg>
 
     <div class="main-container">
+        <div id="telegramUserInfo" class="telegram-user-info" style="display: none;">
+            👤 <span id="telegramUsername"></span>
+        </div>
+
         <h1 class="title">🐺 WOLF AUDIO CHAT 🐺</h1>
 
         <div class="controls-panel">
@@ -474,6 +619,7 @@
                 <div class="button-group">
                     <button class="icon-button" id="themeToggle">🌙 Dark Mode</button>
                     <button class="icon-button" id="muteToggle">🔊 Voice On</button>
+                    <button class="icon-button" id="gamesButton">🎮 Games</button>
                     <button class="icon-button" id="historyButton">📝 History</button>
                     <button class="icon-button" id="clearButton">🗑️ Clear Chat</button>
                 </div>
@@ -515,7 +661,130 @@
         </div>
     </div>
 
+    <!-- Games Modal -->
+    <div class="modal" id="gamesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🎮 Games Menu</div>
+                <button class="close-button" id="closeGamesModal">&times;</button>
+            </div>
+            <div class="game-menu">
+                <button class="game-menu-button" id="playFlappyWolf">
+                    🐺 Flappy Wolf
+                </button>
+                <button class="game-menu-button" id="playSnakeGame">
+                    🐍 Snake Hunt
+                </button>
+                <button class="game-menu-button" id="playBrickBreaker">
+                    🧱 Wolf Brick Breaker
+                </button>
+                <button class="game-menu-button" id="playSpaceShooter">
+                    🚀 Space Wolf Shooter
+                </button>
+                <button class="game-menu-button" id="playWolfRun">
+                    🏃 Wolf Runner
+                </button>
+                <button class="game-menu-button" id="playMemoryMatch">
+                    🧠 Memory Match
+                </button>
+                <button class="game-menu-button" id="playWolfJump">
+                    🦘 Wolf Jump
+                </button>
+                <button class="game-menu-button" id="playWolfCatch">
+                    🎯 Catch the Prey
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container" id="gameContainer">
+        <div class="game-content">
+            <div class="game-header">
+                <div class="game-title" id="currentGameTitle">🐺 Flappy Wolf</div>
+                <button class="game-close" id="closeGame">✕ Close</button>
+            </div>
+            <div class="game-score" id="gameScore">Score: 0</div>
+            <div class="game-instructions" id="gameInstructions">Tap or Space to flap!</div>
+            <canvas id="gameCanvas"></canvas>
+        </div>
+    </div>
+
+    <!-- Telegram Widget -->
+    <div class="telegram-widget">
+        <button class="telegram-button" id="telegramButton">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161l-1.84 8.673c-.138.627-.5.781-.988.487l-2.733-2.012-1.318 1.267c-.146.146-.267.267-.548.267l.195-2.778 5.063-4.573c.219-.195-.048-.305-.341-.11l-6.258 3.942-2.697-.844c-.587-.182-.598-.587.122-.869l10.54-4.061c.488-.182.915.11.756.869z"/>
+            </svg>
+            Open in Telegram
+        </button>
+    </div>
+
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <script>
+        // Telegram Mini App Integration
+        let tg = null;
+        let telegramUserId = null;
+        let telegramUsername = null;
+
+        // Check if running inside Telegram
+        if (window.Telegram && window.Telegram.WebApp) {
+            tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+            
+            // Get user info from Telegram
+            const user = tg.initDataUnsafe?.user;
+            if (user) {
+                telegramUserId = user.id;
+                telegramUsername = user.username || user.first_name;
+                
+                // Display user info
+                document.getElementById('telegramUserInfo').style.display = 'block';
+                document.getElementById('telegramUsername').textContent = `Welcome, ${telegramUsername}!`;
+            }
+            
+            // Hide the "Open in Telegram" button since we're already in Telegram
+            document.querySelector('.telegram-widget').style.display = 'none';
+            
+            // Set Telegram theme colors
+            const themeParams = tg.themeParams;
+            if (themeParams.bg_color) {
+                document.documentElement.style.setProperty('--bg-primary', themeParams.bg_color);
+            }
+            
+            // Enable back button
+            tg.BackButton.show();
+            tg.BackButton.onClick(() => {
+                tg.close();
+            });
+            
+            // Main button for Telegram
+            tg.MainButton.setText('Close App');
+            tg.MainButton.show();
+            tg.MainButton.onClick(() => {
+                tg.close();
+            });
+            
+        } else {
+            // Not in Telegram - show the button
+            document.querySelector('.telegram-widget').style.display = 'block';
+        }
+
+        // Telegram Button Click Handler (optional - for opening bot in Telegram)
+        const telegramButton = document.getElementById('telegramButton');
+        
+        telegramButton.addEventListener('click', () => {
+            // This button is hidden when app runs inside Telegram
+            alert('Please set up your Telegram bot to use this feature.');
+        });
+
+        // IMPORTANT: Update this with your actual GitHub Pages or Render URL
+        console.log('🐺 Wolf Audio Chat Mini App Ready!');
+        console.log('📍 Deploy this to GitHub Pages: https://yourusername.github.io/wolf-audio-chat');
+        console.log('🤖 Then set in BotFather: /mybots → Menu Button → Paste your GitHub Pages URL');
         const startButton = document.getElementById('startButton');
         const stopButton = document.getElementById('stopButton');
         const statusBar = document.getElementById('statusBar');
@@ -533,6 +802,24 @@
         const historyModal = document.getElementById('historyModal');
         const closeModal = document.getElementById('closeModal');
         const historyList = document.getElementById('historyList');
+        const gamesButton = document.getElementById('gamesButton');
+        const gamesModal = document.getElementById('gamesModal');
+        const closeGamesModal = document.getElementById('closeGamesModal');
+        const gameContainer = document.getElementById('gameContainer');
+        const closeGame = document.getElementById('closeGame');
+        const gameCanvas = document.getElementById('gameCanvas');
+        const ctx = gameCanvas.getContext('2d');
+        const gameScore = document.getElementById('gameScore');
+        const currentGameTitle = document.getElementById('currentGameTitle');
+        const gameInstructions = document.getElementById('gameInstructions');
+        const playFlappyWolf = document.getElementById('playFlappyWolf');
+        const playSnakeGame = document.getElementById('playSnakeGame');
+        const playBrickBreaker = document.getElementById('playBrickBreaker');
+        const playSpaceShooter = document.getElementById('playSpaceShooter');
+        const playWolfRun = document.getElementById('playWolfRun');
+        const playMemoryMatch = document.getElementById('playMemoryMatch');
+        const playWolfJump = document.getElementById('playWolfJump');
+        const playWolfCatch = document.getElementById('playWolfCatch');
 
         // Backend API endpoint
         const API_ENDPOINT = 'https://wolf-audio-chat.onrender.com/api/chat';
@@ -595,6 +882,1852 @@
         historyModal.addEventListener('click', (e) => {
             if (e.target === historyModal) historyModal.classList.remove('active');
         });
+
+        gamesButton.addEventListener('click', () => {
+            gamesModal.classList.add('active');
+        });
+
+        closeGamesModal.addEventListener('click', () => gamesModal.classList.remove('active'));
+        gamesModal.addEventListener('click', (e) => {
+            if (e.target === gamesModal) gamesModal.classList.remove('active');
+        });
+
+        closeGame.addEventListener('click', () => {
+            gameContainer.classList.remove('active');
+            if (currentGame) currentGame.stop();
+        });
+
+        let currentGame = null;
+
+        // Flappy Wolf Game
+        playFlappyWolf.addEventListener('click', () => {
+            gamesModal.classList.remove('active');
+            gameContainer.classList.add('active');
+            currentGameTitle.textContent = '🐺 Flappy Wolf';
+            gameInstructions.textContent = 'Tap or Space to flap!';
+            startFlappyWolf();
+        });
+
+        // Snake Game
+        playSnakeGame.addEventListener('click', () => {
+            gamesModal.classList.remove('active');
+            gameContainer.classList.add('active');
+            currentGameTitle.textContent = '🐍 Snake Hunt';
+            gameInstructions.textContent = 'Arrow keys to move!';
+            startSnakeGame();
+        });
+
+        // Brick Breaker Game
+        playBrickBreaker.addEventListener('click', () => {
+            gamesModal.classList.remove('active');
+            gameContainer.classList.add('active');
+            currentGameTitle.textContent = '🧱 Wolf Brick Breaker';
+            gameInstructions.textContent = 'Move mouse or touch to control paddle!';
+            startBrickBreaker();
+        });
+
+        // Space Shooter Game
+        playSpaceShooter.addEventListener('click', () => {
+            gamesModal.classList.remove('active');
+            gameContainer.classList.add('active');
+            currentGameTitle.textContent = '🚀 Space Wolf Shooter';
+            gameInstructions.textContent = 'Arrow keys to move, Space to shoot!';
+            startSpaceShooter();
+        });
+
+        // Wolf Runner Game
+        playWolfRun.addEventListener('click', () => {
+            gamesModal.classList.remove('active');
+            gameContainer.classList.add('active');
+            currentGameTitle.textContent = '🏃 Wolf Runner';
+            gameInstructions.textContent = 'Space or tap to jump over obstacles!';
+            startWolfRunner();
+        });
+
+        // Memory Match Game
+        playMemoryMatch.addEventListener('click', () => {
+            gamesModal.classList.remove('active');
+            gameContainer.classList.add('active');
+            currentGameTitle.textContent = '🧠 Memory Match';
+            gameInstructions.textContent = 'Click cards to find matching pairs!';
+            startMemoryMatch();
+        });
+
+        // Wolf Jump Game
+        playWolfJump.addEventListener('click', () => {
+            gamesModal.classList.remove('active');
+            gameContainer.classList.add('active');
+            currentGameTitle.textContent = '🦘 Wolf Jump';
+            gameInstructions.textContent = 'Jump left/right to climb higher!';
+            startWolfJump();
+        });
+
+        // Wolf Catch Game
+        playWolfCatch.addEventListener('click', () => {
+            gamesModal.classList.remove('active');
+            gameContainer.classList.add('active');
+            currentGameTitle.textContent = '🎯 Catch the Prey';
+            gameInstructions.textContent = 'Move mouse/touch to catch falling prey!';
+            startWolfCatch();
+        });
+
+        function startFlappyWolf() {
+            gameCanvas.width = gameCanvas.offsetWidth;
+            gameCanvas.height = gameCanvas.offsetHeight;
+
+            const wolf = {
+                x: 80,
+                y: gameCanvas.height / 2,
+                velocity: 0,
+                gravity: 0.5,
+                jump: -10,
+                size: 30
+            };
+
+            const pipes = [];
+            let score = 0;
+            let frame = 0;
+            let gameRunning = true;
+
+            function createPipe() {
+                const gap = 150;
+                const minHeight = 50;
+                const maxHeight = gameCanvas.height - gap - minHeight;
+                const height = Math.random() * (maxHeight - minHeight) + minHeight;
+                
+                pipes.push({
+                    x: gameCanvas.width,
+                    topHeight: height,
+                    bottomY: height + gap,
+                    width: 50,
+                    scored: false
+                });
+            }
+
+            function jump() {
+                if (gameRunning) {
+                    wolf.velocity = wolf.jump;
+                }
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && gameContainer.classList.contains('active')) {
+                    e.preventDefault();
+                    jump();
+                }
+            });
+
+            gameCanvas.addEventListener('click', jump);
+            gameCanvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                jump();
+            });
+
+            function gameLoop() {
+                if (!gameRunning) return;
+
+                ctx.fillStyle = '#87CEEB';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+                // Update wolf
+                wolf.velocity += wolf.gravity;
+                wolf.y += wolf.velocity;
+
+                // Draw wolf
+                ctx.save();
+                ctx.translate(wolf.x, wolf.y);
+                
+                // Wolf body
+                ctx.fillStyle = '#8B7355';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, wolf.size, wolf.size * 0.8, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Wolf head
+                ctx.fillStyle = '#A0826D';
+                ctx.beginPath();
+                ctx.arc(-8, -wolf.size * 0.5, wolf.size * 0.7, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Wolf snout
+                ctx.fillStyle = '#C9B8A8';
+                ctx.beginPath();
+                ctx.ellipse(-15, -wolf.size * 0.4, wolf.size * 0.4, wolf.size * 0.3, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Wolf ears (pointed)
+                ctx.fillStyle = '#8B7355';
+                ctx.beginPath();
+                ctx.moveTo(-8, -wolf.size * 0.9);
+                ctx.lineTo(-2, -wolf.size * 1.2);
+                ctx.lineTo(2, -wolf.size * 0.9);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.moveTo(-14, -wolf.size * 0.9);
+                ctx.lineTo(-18, -wolf.size * 1.2);
+                ctx.lineTo(-12, -wolf.size * 0.9);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Wolf eyes
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(-12, -wolf.size * 0.6, 4, 0, Math.PI * 2);
+                ctx.arc(-4, -wolf.size * 0.6, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-12, -wolf.size * 0.6, 2, 0, Math.PI * 2);
+                ctx.arc(-4, -wolf.size * 0.6, 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Wolf nose
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-18, -wolf.size * 0.4, 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Wolf tail
+                ctx.strokeStyle = '#8B7355';
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                ctx.moveTo(wolf.size * 0.6, 0);
+                ctx.quadraticCurveTo(wolf.size * 1.2, -10, wolf.size * 1.0, -20);
+                ctx.stroke();
+                
+                // Tail tip
+                ctx.fillStyle = '#D3D3D3';
+                ctx.beginPath();
+                ctx.arc(wolf.size * 1.0, -20, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+
+                // Create pipes
+                frame++;
+                if (frame % 120 === 0) {
+                    createPipe();
+                }
+
+                // Update and draw pipes
+                for (let i = pipes.length - 1; i >= 0; i--) {
+                    const pipe = pipes[i];
+                    pipe.x -= 3;
+
+                    // Draw pipes
+                    ctx.fillStyle = '#2d5f3f';
+                    ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
+                    ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, gameCanvas.height - pipe.bottomY);
+
+                    // Check collision
+                    if (wolf.x + wolf.size > pipe.x && 
+                        wolf.x - wolf.size < pipe.x + pipe.width) {
+                        if (wolf.y - wolf.size < pipe.topHeight || 
+                            wolf.y + wolf.size > pipe.bottomY) {
+                            gameRunning = false;
+                            gameOver();
+                        }
+                    }
+
+                    // Score
+                    if (!pipe.scored && pipe.x + pipe.width < wolf.x) {
+                        score++;
+                        pipe.scored = true;
+                        gameScore.textContent = `Score: ${score}`;
+                    }
+
+                    // Remove off-screen pipes
+                    if (pipe.x + pipe.width < 0) {
+                        pipes.splice(i, 1);
+                    }
+                }
+
+                // Check boundaries
+                if (wolf.y + wolf.size > gameCanvas.height || wolf.y - wolf.size < 0) {
+                    gameRunning = false;
+                    gameOver();
+                }
+
+                if (gameRunning) {
+                    requestAnimationFrame(gameLoop);
+                }
+            }
+
+            function gameOver() {
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over!', gameCanvas.width / 2, gameCanvas.height / 2 - 20);
+                ctx.font = '24px Arial';
+                ctx.fillText(`Final Score: ${score}`, gameCanvas.width / 2, gameCanvas.height / 2 + 20);
+                ctx.fillText('Click to restart', gameCanvas.width / 2, gameCanvas.height / 2 + 60);
+                
+                gameCanvas.onclick = () => {
+                    pipes.length = 0;
+                    score = 0;
+                    frame = 0;
+                    wolf.y = gameCanvas.height / 2;
+                    wolf.velocity = 0;
+                    gameRunning = true;
+                    gameScore.textContent = 'Score: 0';
+                    gameLoop();
+                };
+            }
+
+            currentGame = {
+                stop: () => {
+                    gameRunning = false;
+                }
+            };
+
+            gameScore.textContent = 'Score: 0';
+            gameLoop();
+        }
+
+        function startSnakeGame() {
+            gameCanvas.width = gameCanvas.offsetWidth;
+            gameCanvas.height = gameCanvas.offsetHeight;
+
+            const gridSize = 20;
+            const tileCount = Math.floor(gameCanvas.width / gridSize);
+            const tileCountY = Math.floor(gameCanvas.height / gridSize);
+
+            let snake = [{x: 10, y: 10}];
+            let dx = 1;
+            let dy = 0;
+            let food = {
+                x: Math.floor(Math.random() * tileCount),
+                y: Math.floor(Math.random() * tileCountY)
+            };
+            let score = 0;
+            let gameRunning = true;
+            let speed = 150;
+            let lastTime = Date.now();
+
+            function changeDirection(e) {
+                const key = e.key;
+                if (key === 'ArrowUp' && dy === 0) { dx = 0; dy = -1; }
+                if (key === 'ArrowDown' && dy === 0) { dx = 0; dy = 1; }
+                if (key === 'ArrowLeft' && dx === 0) { dx = -1; dy = 0; }
+                if (key === 'ArrowRight' && dx === 0) { dx = 1; dy = 0; }
+            }
+
+            const keyHandler = (e) => {
+                if (gameContainer.classList.contains('active') && 
+                    currentGameTitle.textContent === '🐍 Snake Hunt') {
+                    changeDirection(e);
+                }
+            };
+
+            document.addEventListener('keydown', keyHandler);
+
+            function update() {
+                if (!gameRunning) return;
+
+                const now = Date.now();
+                if (now - lastTime < speed) {
+                    requestAnimationFrame(update);
+                    return;
+                }
+                lastTime = now;
+
+                // Move snake
+                const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+
+                // Check wall collision
+                if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCountY) {
+                    gameOver();
+                    return;
+                }
+
+                // Check self collision
+                for (let segment of snake) {
+                    if (head.x === segment.x && head.y === segment.y) {
+                        gameOver();
+                        return;
+                    }
+                }
+
+                snake.unshift(head);
+
+                // Check food
+                if (head.x === food.x && head.y === food.y) {
+                    score++;
+                    gameScore.textContent = `Score: ${score}`;
+                    food = {
+                        x: Math.floor(Math.random() * tileCount),
+                        y: Math.floor(Math.random() * tileCountY)
+                    };
+                    speed = Math.max(50, speed - 3);
+                } else {
+                    snake.pop();
+                }
+
+                draw();
+                requestAnimationFrame(update);
+            }
+
+            function draw() {
+                // Background
+                ctx.fillStyle = '#2d5f3f';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+                // Draw grid pattern
+                ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+                ctx.lineWidth = 1;
+                for (let x = 0; x < tileCount; x++) {
+                    for (let y = 0; y < tileCountY; y++) {
+                        ctx.strokeRect(x * gridSize, y * gridSize, gridSize, gridSize);
+                    }
+                }
+
+                // Draw snake with realistic look
+                for (let i = 0; i < snake.length; i++) {
+                    const segment = snake[i];
+                    const isHead = i === 0;
+                    
+                    if (isHead) {
+                        // Snake head
+                        ctx.save();
+                        ctx.translate(segment.x * gridSize + gridSize/2, segment.y * gridSize + gridSize/2);
+                        
+                        // Rotate based on direction
+                        let angle = 0;
+                        if (dx === 1) angle = 0;
+                        if (dx === -1) angle = Math.PI;
+                        if (dy === 1) angle = Math.PI / 2;
+                        if (dy === -1) angle = -Math.PI / 2;
+                        ctx.rotate(angle);
+                        
+                        // Head shape
+                        ctx.fillStyle = '#228B22';
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, gridSize/2, gridSize/2.5, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Eyes
+                        ctx.fillStyle = '#FFD700';
+                        ctx.beginPath();
+                        ctx.arc(-3, -4, 2.5, 0, Math.PI * 2);
+                        ctx.arc(3, -4, 2.5, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        ctx.fillStyle = 'black';
+                        ctx.beginPath();
+                        ctx.arc(-3, -4, 1.5, 0, Math.PI * 2);
+                        ctx.arc(3, -4, 1.5, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Tongue
+                        ctx.strokeStyle = '#FF0000';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(8, 0);
+                        ctx.lineTo(12, -2);
+                        ctx.moveTo(8, 0);
+                        ctx.lineTo(12, 2);
+                        ctx.stroke();
+                        
+                        // Nostrils
+                        ctx.fillStyle = 'black';
+                        ctx.beginPath();
+                        ctx.arc(6, -1, 1, 0, Math.PI * 2);
+                        ctx.arc(6, 1, 1, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        ctx.restore();
+                    } else {
+                        // Body segments with pattern
+                        ctx.fillStyle = `rgb(34, ${Math.min(139, 139 - i * 2)}, 34)`;
+                        ctx.beginPath();
+                        ctx.arc(segment.x * gridSize + gridSize/2, segment.y * gridSize + gridSize/2, gridSize/2 - 1, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Scale pattern
+                        if (i % 2 === 0) {
+                            ctx.fillStyle = `rgba(50, 205, 50, 0.3)`;
+                            ctx.beginPath();
+                            ctx.arc(segment.x * gridSize + gridSize/2, segment.y * gridSize + gridSize/2, gridSize/3, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                }
+
+                // Draw food (apple)
+                ctx.fillStyle = '#FF0000';
+                ctx.beginPath();
+                ctx.arc(food.x * gridSize + gridSize/2, food.y * gridSize + gridSize/2, gridSize/2 - 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Apple shine
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.beginPath();
+                ctx.arc(food.x * gridSize + gridSize/2 - 2, food.y * gridSize + gridSize/2 - 2, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Apple stem
+                ctx.strokeStyle = '#8B4513';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(food.x * gridSize + gridSize/2, food.y * gridSize + 2);
+                ctx.lineTo(food.x * gridSize + gridSize/2, food.y * gridSize - 2);
+                ctx.stroke();
+            }
+
+            function gameOver() {
+                gameRunning = false;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over!', gameCanvas.width / 2, gameCanvas.height / 2 - 20);
+                ctx.font = '24px Arial';
+                ctx.fillText(`Final Score: ${score}`, gameCanvas.width / 2, gameCanvas.height / 2 + 20);
+                ctx.fillText('Press any key to restart', gameCanvas.width / 2, gameCanvas.height / 2 + 60);
+                
+                const restartHandler = (e) => {
+                    document.removeEventListener('keydown', restartHandler);
+                    document.removeEventListener('keydown', keyHandler);
+                    snake = [{x: 10, y: 10}];
+                    dx = 1;
+                    dy = 0;
+                    score = 0;
+                    speed = 150;
+                    gameRunning = true;
+                    gameScore.textContent = 'Score: 0';
+                    food = {
+                        x: Math.floor(Math.random() * tileCount),
+                        y: Math.floor(Math.random() * tileCountY)
+                    };
+                    startSnakeGame();
+                };
+                
+                document.addEventListener('keydown', restartHandler);
+            }
+
+            currentGame = {
+                stop: () => {
+                    gameRunning = false;
+                    document.removeEventListener('keydown', keyHandler);
+                }
+            };
+
+            gameScore.textContent = 'Score: 0';
+            draw();
+            update();
+        }
+
+        function startBrickBreaker() {
+            gameCanvas.width = gameCanvas.offsetWidth;
+            gameCanvas.height = gameCanvas.offsetHeight;
+
+            const paddleWidth = 100;
+            const paddleHeight = 15;
+            let paddleX = gameCanvas.width / 2 - paddleWidth / 2;
+
+            const ball = {
+                x: gameCanvas.width / 2,
+                y: gameCanvas.height - 40,
+                radius: 8,
+                dx: 4,
+                dy: -4
+            };
+
+            const brickRowCount = 5;
+            const brickColumnCount = 8;
+            const brickWidth = 60;
+            const brickHeight = 20;
+            const brickPadding = 5;
+            const brickOffsetTop = 50;
+            const brickOffsetLeft = 30;
+
+            const bricks = [];
+            const brickColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8'];
+            
+            for (let c = 0; c < brickColumnCount; c++) {
+                bricks[c] = [];
+                for (let r = 0; r < brickRowCount; r++) {
+                    bricks[c][r] = { x: 0, y: 0, status: 1 };
+                }
+            }
+
+            let score = 0;
+            let gameRunning = true;
+
+            function mouseMoveHandler(e) {
+                const rect = gameCanvas.getBoundingClientRect();
+                const relativeX = e.clientX - rect.left;
+                if (relativeX > 0 && relativeX < gameCanvas.width) {
+                    paddleX = relativeX - paddleWidth / 2;
+                }
+            }
+
+            function touchMoveHandler(e) {
+                e.preventDefault();
+                const rect = gameCanvas.getBoundingClientRect();
+                const relativeX = e.touches[0].clientX - rect.left;
+                if (relativeX > 0 && relativeX < gameCanvas.width) {
+                    paddleX = relativeX - paddleWidth / 2;
+                }
+            }
+
+            gameCanvas.addEventListener('mousemove', mouseMoveHandler);
+            gameCanvas.addEventListener('touchmove', touchMoveHandler);
+
+            function collisionDetection() {
+                for (let c = 0; c < brickColumnCount; c++) {
+                    for (let r = 0; r < brickRowCount; r++) {
+                        const b = bricks[c][r];
+                        if (b.status === 1) {
+                            if (ball.x > b.x && ball.x < b.x + brickWidth && 
+                                ball.y > b.y && ball.y < b.y + brickHeight) {
+                                ball.dy = -ball.dy;
+                                b.status = 0;
+                                score++;
+                                gameScore.textContent = `Score: ${score}`;
+                                
+                                if (score === brickRowCount * brickColumnCount) {
+                                    gameWin();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            function drawBall() {
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFD700';
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            function drawPaddle() {
+                ctx.fillStyle = '#8B7355';
+                ctx.fillRect(paddleX, gameCanvas.height - paddleHeight - 10, paddleWidth, paddleHeight);
+                
+                // Paddle details
+                ctx.fillStyle = '#A0826D';
+                ctx.fillRect(paddleX + 5, gameCanvas.height - paddleHeight - 10, paddleWidth - 10, paddleHeight - 5);
+            }
+
+            function drawBricks() {
+                for (let c = 0; c < brickColumnCount; c++) {
+                    for (let r = 0; r < brickRowCount; r++) {
+                        if (bricks[c][r].status === 1) {
+                            const brickX = c * (brickWidth + brickPadding) + brickOffsetLeft;
+                            const brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
+                            bricks[c][r].x = brickX;
+                            bricks[c][r].y = brickY;
+                            
+                            ctx.fillStyle = brickColors[r];
+                            ctx.fillRect(brickX, brickY, brickWidth, brickHeight);
+                            
+                            // Brick highlight
+                            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                            ctx.fillRect(brickX, brickY, brickWidth, brickHeight / 2);
+                        }
+                    }
+                }
+            }
+
+            function draw() {
+                if (!gameRunning) return;
+
+                ctx.fillStyle = '#1a4d2e';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+                drawBricks();
+                drawBall();
+                drawPaddle();
+                collisionDetection();
+
+                // Ball physics
+                if (ball.x + ball.dx > gameCanvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
+                    ball.dx = -ball.dx;
+                }
+                if (ball.y + ball.dy < ball.radius) {
+                    ball.dy = -ball.dy;
+                } else if (ball.y + ball.dy > gameCanvas.height - ball.radius - paddleHeight - 10) {
+                    if (ball.x > paddleX && ball.x < paddleX + paddleWidth) {
+                        ball.dy = -ball.dy;
+                        // Add spin based on where ball hits paddle
+                        const hitPos = (ball.x - paddleX) / paddleWidth;
+                        ball.dx = (hitPos - 0.5) * 8;
+                    } else if (ball.y + ball.dy > gameCanvas.height - ball.radius) {
+                        gameOver();
+                        return;
+                    }
+                }
+
+                ball.x += ball.dx;
+                ball.y += ball.dy;
+
+                requestAnimationFrame(draw);
+            }
+
+            function gameOver() {
+                gameRunning = false;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over!', gameCanvas.width / 2, gameCanvas.height / 2 - 20);
+                ctx.font = '24px Arial';
+                ctx.fillText(`Final Score: ${score}`, gameCanvas.width / 2, gameCanvas.height / 2 + 20);
+                ctx.fillText('Click to restart', gameCanvas.width / 2, gameCanvas.height / 2 + 60);
+                
+                gameCanvas.onclick = () => startBrickBreaker();
+            }
+
+            function gameWin() {
+                gameRunning = false;
+                ctx.fillStyle = 'rgba(0,255,0,0.7)';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('You Win! 🎉', gameCanvas.width / 2, gameCanvas.height / 2 - 20);
+                ctx.font = '24px Arial';
+                ctx.fillText(`Perfect Score: ${score}`, gameCanvas.width / 2, gameCanvas.height / 2 + 20);
+                ctx.fillText('Click to play again', gameCanvas.width / 2, gameCanvas.height / 2 + 60);
+                
+                gameCanvas.onclick = () => startBrickBreaker();
+            }
+
+            currentGame = {
+                stop: () => {
+                    gameRunning = false;
+                    gameCanvas.removeEventListener('mousemove', mouseMoveHandler);
+                    gameCanvas.removeEventListener('touchmove', touchMoveHandler);
+                }
+            };
+
+            gameScore.textContent = 'Score: 0';
+            draw();
+        }
+
+        function startSpaceShooter() {
+            gameCanvas.width = gameCanvas.offsetWidth;
+            gameCanvas.height = gameCanvas.offsetHeight;
+
+            const player = {
+                x: gameCanvas.width / 2,
+                y: gameCanvas.height - 60,
+                width: 40,
+                height: 40,
+                speed: 5
+            };
+
+            const keys = {};
+            const bullets = [];
+            const enemies = [];
+            let score = 0;
+            let gameRunning = true;
+            let enemySpawnTimer = 0;
+
+            function keyDownHandler(e) {
+                keys[e.key] = true;
+                if (e.key === ' ') {
+                    e.preventDefault();
+                    shootBullet();
+                }
+            }
+
+            function keyUpHandler(e) {
+                keys[e.key] = false;
+            }
+
+            document.addEventListener('keydown', keyDownHandler);
+            document.addEventListener('keyup', keyUpHandler);
+
+            function shootBullet() {
+                bullets.push({
+                    x: player.x + player.width / 2 - 2,
+                    y: player.y,
+                    width: 4,
+                    height: 15,
+                    speed: 7
+                });
+            }
+
+            function createEnemy() {
+                enemies.push({
+                    x: Math.random() * (gameCanvas.width - 30),
+                    y: -30,
+                    width: 30,
+                    height: 30,
+                    speed: 2 + Math.random() * 2
+                });
+            }
+
+            function drawPlayer() {
+                ctx.save();
+                ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+                
+                // Wolf spaceship body
+                ctx.fillStyle = '#8B7355';
+                ctx.beginPath();
+                ctx.moveTo(0, -20);
+                ctx.lineTo(-15, 20);
+                ctx.lineTo(15, 20);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Wolf face on ship
+                ctx.fillStyle = '#A0826D';
+                ctx.beginPath();
+                ctx.arc(0, 0, 12, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Eyes
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(-4, -2, 3, 0, Math.PI * 2);
+                ctx.arc(4, -2, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-4, -2, 2, 0, Math.PI * 2);
+                ctx.arc(4, -2, 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Engines
+                ctx.fillStyle = '#FF6B6B';
+                ctx.fillRect(-12, 15, 6, 8);
+                ctx.fillRect(6, 15, 6, 8);
+                
+                ctx.restore();
+            }
+
+            function update() {
+                if (!gameRunning) return;
+
+                // Clear canvas
+                ctx.fillStyle = '#000033';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+                // Draw stars
+                ctx.fillStyle = 'white';
+                for (let i = 0; i < 50; i++) {
+                    const x = (i * 37) % gameCanvas.width;
+                    const y = (i * 41 + Date.now() / 10) % gameCanvas.height;
+                    ctx.fillRect(x, y, 2, 2);
+                }
+
+                // Player movement
+                if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+                if (keys['ArrowRight'] && player.x < gameCanvas.width - player.width) player.x += player.speed;
+                if (keys['ArrowUp'] && player.y > 0) player.y -= player.speed;
+                if (keys['ArrowDown'] && player.y < gameCanvas.height - player.height) player.y += player.speed;
+
+                drawPlayer();
+
+                // Update bullets
+                for (let i = bullets.length - 1; i >= 0; i--) {
+                    const bullet = bullets[i];
+                    bullet.y -= bullet.speed;
+                    
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+                    
+                    if (bullet.y < 0) bullets.splice(i, 1);
+                }
+
+                // Spawn enemies
+                enemySpawnTimer++;
+                if (enemySpawnTimer > 60) {
+                    createEnemy();
+                    enemySpawnTimer = 0;
+                }
+
+                // Update enemies
+                for (let i = enemies.length - 1; i >= 0; i--) {
+                    const enemy = enemies[i];
+                    enemy.y += enemy.speed;
+                    
+                    // Draw enemy (alien ship)
+                    ctx.fillStyle = '#00FF00';
+                    ctx.beginPath();
+                    ctx.arc(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.width / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.fillStyle = '#FF0000';
+                    ctx.beginPath();
+                    ctx.arc(enemy.x + enemy.width / 2 - 5, enemy.y + enemy.height / 2 - 3, 3, 0, Math.PI * 2);
+                    ctx.arc(enemy.x + enemy.width / 2 + 5, enemy.y + enemy.height / 2 - 3, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Check collision with bullets
+                    for (let j = bullets.length - 1; j >= 0; j--) {
+                        const bullet = bullets[j];
+                        if (bullet.x < enemy.x + enemy.width &&
+                            bullet.x + bullet.width > enemy.x &&
+                            bullet.y < enemy.y + enemy.height &&
+                            bullet.y + bullet.height > enemy.y) {
+                            enemies.splice(i, 1);
+                            bullets.splice(j, 1);
+                            score += 10;
+                            gameScore.textContent = `Score: ${score}`;
+                            break;
+                        }
+                    }
+                    
+                    // Check collision with player
+                    if (enemy.x < player.x + player.width &&
+                        enemy.x + enemy.width > player.x &&
+                        enemy.y < player.y + player.height &&
+                        enemy.y + enemy.height > player.y) {
+                        gameOver();
+                        return;
+                    }
+                    
+                    if (enemy.y > gameCanvas.height) enemies.splice(i, 1);
+                }
+
+                requestAnimationFrame(update);
+            }
+
+            function gameOver() {
+                gameRunning = false;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over!', gameCanvas.width / 2, gameCanvas.height / 2 - 20);
+                ctx.font = '24px Arial';
+                ctx.fillText(`Final Score: ${score}`, gameCanvas.width / 2, gameCanvas.height / 2 + 20);
+                ctx.fillText('Click to restart', gameCanvas.width / 2, gameCanvas.height / 2 + 60);
+                
+                gameCanvas.onclick = () => startSpaceShooter();
+            }
+
+            currentGame = {
+                stop: () => {
+                    gameRunning = false;
+                    document.removeEventListener('keydown', keyDownHandler);
+                    document.removeEventListener('keyup', keyUpHandler);
+                }
+            };
+
+            gameScore.textContent = 'Score: 0';
+            update();
+        }
+
+        function startWolfRunner() {
+            gameCanvas.width = gameCanvas.offsetWidth;
+            gameCanvas.height = gameCanvas.offsetHeight;
+
+            const wolf = {
+                x: 80,
+                y: gameCanvas.height - 80,
+                width: 40,
+                height: 40,
+                velocityY: 0,
+                gravity: 0.8,
+                jumpPower: -15,
+                grounded: true
+            };
+
+            const obstacles = [];
+            let score = 0;
+            let gameRunning = true;
+            let gameSpeed = 5;
+            let obstacleTimer = 0;
+            let groundY = gameCanvas.height - 40;
+
+            function jump() {
+                if (wolf.grounded) {
+                    wolf.velocityY = wolf.jumpPower;
+                    wolf.grounded = false;
+                }
+            }
+
+            function keyHandler(e) {
+                if (e.code === 'Space' && gameContainer.classList.contains('active')) {
+                    e.preventDefault();
+                    jump();
+                }
+            }
+
+            document.addEventListener('keydown', keyHandler);
+            gameCanvas.addEventListener('click', jump);
+            gameCanvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                jump();
+            });
+
+            function createObstacle() {
+                const types = ['rock', 'tree', 'cactus'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                obstacles.push({
+                    x: gameCanvas.width,
+                    y: groundY - 30,
+                    width: 30,
+                    height: 30,
+                    type: type
+                });
+            }
+
+            function drawWolfRunner() {
+                ctx.save();
+                ctx.translate(wolf.x + wolf.width / 2, wolf.y + wolf.height / 2);
+                
+                // Running animation
+                const legOffset = Math.sin(Date.now() / 100) * 5;
+                
+                // Wolf body (facing forward)
+                ctx.fillStyle = '#8B7355';
+                ctx.fillRect(-15, -5, 30, 25);
+                
+                // Wolf head (facing forward)
+                ctx.fillStyle = '#A0826D';
+                ctx.beginPath();
+                ctx.arc(0, -15, 15, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Wolf snout (centered, facing forward)
+                ctx.fillStyle = '#C9B8A8';
+                ctx.fillRect(-8, -8, 16, 12);
+                
+                // Eyes (both visible, facing forward)
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(-6, -18, 4, 0, Math.PI * 2);
+                ctx.arc(6, -18, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-6, -18, 2, 0, Math.PI * 2);
+                ctx.arc(6, -18, 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Nose (centered)
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(0, -8, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Mouth
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(-4, -5);
+                ctx.quadraticCurveTo(0, -3, 4, -5);
+                ctx.stroke();
+                
+                // Ears (both visible, pointed up)
+                ctx.fillStyle = '#8B7355';
+                ctx.beginPath();
+                ctx.moveTo(-10, -28);
+                ctx.lineTo(-6, -35);
+                ctx.lineTo(-2, -28);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.moveTo(2, -28);
+                ctx.lineTo(6, -35);
+                ctx.lineTo(10, -28);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Front legs (both visible, running animation)
+                ctx.fillStyle = '#6B5345';
+                ctx.fillRect(-12, 15, 8, 18 + legOffset);
+                ctx.fillRect(4, 15, 8, 18 - legOffset);
+                
+                // Tail (behind, sticking up)
+                ctx.strokeStyle = '#8B7355';
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                ctx.moveTo(0, 15);
+                ctx.quadraticCurveTo(0, 30, -5, 35);
+                ctx.stroke();
+                
+                // Tail tip
+                ctx.fillStyle = '#D3D3D3';
+                ctx.beginPath();
+                ctx.arc(-5, 35, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+
+            function drawObstacle(obstacle) {
+                if (obstacle.type === 'rock') {
+                    ctx.fillStyle = '#666666';
+                    ctx.beginPath();
+                    ctx.arc(obstacle.x + 15, obstacle.y + 15, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#444444';
+                    ctx.beginPath();
+                    ctx.arc(obstacle.x + 10, obstacle.y + 10, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (obstacle.type === 'tree') {
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(obstacle.x + 10, obstacle.y, 10, 30);
+                    ctx.fillStyle = '#228B22';
+                    ctx.beginPath();
+                    ctx.arc(obstacle.x + 15, obstacle.y, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (obstacle.type === 'cactus') {
+                    ctx.fillStyle = '#228B22';
+                    ctx.fillRect(obstacle.x + 12, obstacle.y + 10, 6, 20);
+                    ctx.fillRect(obstacle.x + 8, obstacle.y + 15, 4, 10);
+                    ctx.fillRect(obstacle.x + 18, obstacle.y + 15, 4, 10);
+                }
+            }
+
+            function update() {
+                if (!gameRunning) return;
+
+                // Clear and draw background
+                const gradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
+                gradient.addColorStop(0, '#87CEEB');
+                gradient.addColorStop(1, '#90EE90');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+                // Draw ground
+                ctx.fillStyle = '#8B7355';
+                ctx.fillRect(0, groundY, gameCanvas.width, gameCanvas.height - groundY);
+                
+                // Ground details
+                ctx.fillStyle = '#6B5345';
+                for (let i = 0; i < gameCanvas.width; i += 20) {
+                    ctx.fillRect(i - (Date.now() / 10) % 20, groundY, 10, 5);
+                }
+
+                // Wolf physics
+                wolf.velocityY += wolf.gravity;
+                wolf.y += wolf.velocityY;
+
+                if (wolf.y >= groundY - wolf.height) {
+                    wolf.y = groundY - wolf.height;
+                    wolf.velocityY = 0;
+                    wolf.grounded = true;
+                }
+
+                drawWolfRunner();
+
+                // Create obstacles
+                obstacleTimer++;
+                if (obstacleTimer > 100 - gameSpeed) {
+                    createObstacle();
+                    obstacleTimer = 0;
+                }
+
+                // Update obstacles
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    const obstacle = obstacles[i];
+                    obstacle.x -= gameSpeed;
+
+                    drawObstacle(obstacle);
+
+                    // Check collision
+                    if (wolf.x < obstacle.x + obstacle.width &&
+                        wolf.x + wolf.width > obstacle.x &&
+                        wolf.y < obstacle.y + obstacle.height &&
+                        wolf.y + wolf.height > obstacle.y) {
+                        gameOver();
+                        return;
+                    }
+
+                    // Score point
+                    if (obstacle.x + obstacle.width < wolf.x && !obstacle.scored) {
+                        obstacle.scored = true;
+                        score++;
+                        gameScore.textContent = `Score: ${score}`;
+                        
+                        if (score % 10 === 0) {
+                            gameSpeed += 0.5;
+                        }
+                    }
+
+                    if (obstacle.x + obstacle.width < 0) {
+                        obstacles.splice(i, 1);
+                    }
+                }
+
+                // Draw score
+                ctx.fillStyle = 'black';
+                ctx.font = 'bold 20px Arial';
+                ctx.fillText(`Distance: ${score}m`, 10, 30);
+
+                requestAnimationFrame(update);
+            }
+
+            function gameOver() {
+                gameRunning = false;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over!', gameCanvas.width / 2, gameCanvas.height / 2 - 20);
+                ctx.font = '24px Arial';
+                ctx.fillText(`Distance: ${score}m`, gameCanvas.width / 2, gameCanvas.height / 2 + 20);
+                ctx.fillText('Click to restart', gameCanvas.width / 2, gameCanvas.height / 2 + 60);
+                
+                const restartHandler = () => {
+                    gameCanvas.removeEventListener('click', restartHandler);
+                    startWolfRunner();
+                };
+                gameCanvas.addEventListener('click', restartHandler);
+            }
+
+            currentGame = {
+                stop: () => {
+                    gameRunning = false;
+                    document.removeEventListener('keydown', keyHandler);
+                }
+            };
+
+            gameScore.textContent = 'Score: 0';
+            update();
+        }
+
+        function startMemoryMatch() {
+            gameCanvas.width = gameCanvas.offsetWidth;
+            gameCanvas.height = gameCanvas.offsetHeight;
+
+            const symbols = ['🐺', '🌙', '🌲', '🦊', '🐾', '⭐', '🌿', '🏔️'];
+            const cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+            
+            const cardWidth = 70;
+            const cardHeight = 90;
+            const padding = 10;
+            const cols = 4;
+            const rows = 4;
+            
+            const startX = (gameCanvas.width - (cols * (cardWidth + padding))) / 2;
+            const startY = 50;
+
+            const gameCards = cards.map((symbol, index) => ({
+                symbol,
+                x: startX + (index % cols) * (cardWidth + padding),
+                y: startY + Math.floor(index / cols) * (cardHeight + padding),
+                width: cardWidth,
+                height: cardHeight,
+                flipped: false,
+                matched: false
+            }));
+
+            let firstCard = null;
+            let secondCard = null;
+            let canFlip = true;
+            let matches = 0;
+            let moves = 0;
+            let gameRunning = true;
+
+            function drawCards() {
+                ctx.fillStyle = '#1a4d2e';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+                for (const card of gameCards) {
+                    if (card.matched) {
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fillRect(card.x, card.y, card.width, card.height);
+                        ctx.strokeStyle = '#2E7D32';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(card.x, card.y, card.width, card.height);
+                        
+                        ctx.font = '40px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(card.symbol, card.x + card.width / 2, card.y + card.height / 2);
+                    } else if (card.flipped) {
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.fillRect(card.x, card.y, card.width, card.height);
+                        ctx.strokeStyle = '#2d5f3f';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(card.x, card.y, card.width, card.height);
+                        
+                        ctx.font = '40px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(card.symbol, card.x + card.width / 2, card.y + card.height / 2);
+                    } else {
+                        ctx.fillStyle = '#2d5f3f';
+                        ctx.fillRect(card.x, card.y, card.width, card.height);
+                        ctx.strokeStyle = '#1a4d2e';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(card.x, card.y, card.width, card.height);
+                        
+                        // Wolf pattern on back
+                        ctx.fillStyle = '#1a4d2e';
+                        ctx.font = '30px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('🐺', card.x + card.width / 2, card.y + card.height / 2);
+                    }
+                }
+
+                // Draw stats
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 18px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Moves: ${moves}`, 10, 25);
+                ctx.fillText(`Matches: ${matches}/8`, 10, 50);
+            }
+
+            function handleClick(e) {
+                if (!canFlip || !gameRunning) return;
+
+                const rect = gameCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                for (const card of gameCards) {
+                    if (x >= card.x && x <= card.x + card.width &&
+                        y >= card.y && y <= card.y + card.height &&
+                        !card.flipped && !card.matched) {
+                        
+                        card.flipped = true;
+                        
+                        if (!firstCard) {
+                            firstCard = card;
+                        } else if (!secondCard) {
+                            secondCard = card;
+                            moves++;
+                            canFlip = false;
+
+                            setTimeout(() => {
+                                if (firstCard.symbol === secondCard.symbol) {
+                                    firstCard.matched = true;
+                                    secondCard.matched = true;
+                                    matches++;
+                                    
+                                    if (matches === 8) {
+                                        gameWin();
+                                    }
+                                } else {
+                                    firstCard.flipped = false;
+                                    secondCard.flipped = false;
+                                }
+                                
+                                firstCard = null;
+                                secondCard = null;
+                                canFlip = true;
+                                drawCards();
+                            }, 1000);
+                        }
+                        
+                        drawCards();
+                        break;
+                    }
+                }
+            }
+
+            function handleTouch(e) {
+                e.preventDefault();
+                const rect = gameCanvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+
+                const fakeEvent = {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                };
+                handleClick(fakeEvent);
+            }
+
+            gameCanvas.addEventListener('click', handleClick);
+            gameCanvas.addEventListener('touchstart', handleTouch);
+
+            function gameWin() {
+                gameRunning = false;
+                setTimeout(() => {
+                    ctx.fillStyle = 'rgba(0,255,0,0.9)';
+                    ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 40px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('You Win! 🎉', gameCanvas.width / 2, gameCanvas.height / 2 - 40);
+                    ctx.font = '24px Arial';
+                    ctx.fillText(`Completed in ${moves} moves!`, gameCanvas.width / 2, gameCanvas.height / 2);
+                    ctx.fillText('Click to play again', gameCanvas.width / 2, gameCanvas.height / 2 + 40);
+                    
+                    const restartHandler = () => {
+                        gameCanvas.removeEventListener('click', restartHandler);
+                        startMemoryMatch();
+                    };
+                    gameCanvas.addEventListener('click', restartHandler);
+                }, 500);
+            }
+
+            currentGame = {
+                stop: () => {
+                    gameRunning = false;
+                    gameCanvas.removeEventListener('click', handleClick);
+                    gameCanvas.removeEventListener('touchstart', handleTouch);
+                }
+            };
+
+            gameScore.textContent = 'Moves: 0';
+            drawCards();
+        }
+
+        function startWolfJump() {
+            gameCanvas.width = gameCanvas.offsetWidth;
+            gameCanvas.height = gameCanvas.offsetHeight;
+
+            const wolf = {
+                x: gameCanvas.width / 2,
+                y: gameCanvas.height - 100,
+                width: 40,
+                height: 40,
+                velocityX: 0,
+                velocityY: 0,
+                jumping: false
+            };
+
+            const platforms = [];
+            let cameraY = 0;
+            let score = 0;
+            let highestY = wolf.y;
+            let gameRunning = true;
+
+            // Create initial platforms
+            for (let i = 0; i < 15; i++) {
+                platforms.push({
+                    x: Math.random() * (gameCanvas.width - 80),
+                    y: gameCanvas.height - i * 60,
+                    width: 80,
+                    height: 15,
+                    type: Math.random() > 0.8 ? 'moving' : 'static',
+                    direction: Math.random() > 0.5 ? 1 : -1
+                });
+            }
+
+            function keyHandler(e) {
+                if (e.key === 'ArrowLeft') {
+                    wolf.velocityX = -7;
+                } else if (e.key === 'ArrowRight') {
+                    wolf.velocityX = 7;
+                }
+            }
+
+            document.addEventListener('keydown', keyHandler);
+
+            function drawWolf() {
+                ctx.save();
+                ctx.translate(wolf.x, wolf.y - cameraY);
+                
+                // Wolf body (facing forward)
+                ctx.fillStyle = '#8B7355';
+                ctx.fillRect(-15, -5, 30, 25);
+                
+                // Head
+                ctx.fillStyle = '#A0826D';
+                ctx.beginPath();
+                ctx.arc(0, -15, 15, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Snout
+                ctx.fillStyle = '#C9B8A8';
+                ctx.fillRect(-8, -8, 16, 12);
+                
+                // Eyes
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(-6, -18, 4, 0, Math.PI * 2);
+                ctx.arc(6, -18, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-6, -18, 2, 0, Math.PI * 2);
+                ctx.arc(6, -18, 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Nose
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(0, -8, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Ears
+                ctx.fillStyle = '#8B7355';
+                ctx.beginPath();
+                ctx.moveTo(-10, -28);
+                ctx.lineTo(-6, -35);
+                ctx.lineTo(-2, -28);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.moveTo(2, -28);
+                ctx.lineTo(6, -35);
+                ctx.lineTo(10, -28);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.restore();
+            }
+
+            function update() {
+                if (!gameRunning) return;
+
+                // Background
+                const gradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
+                gradient.addColorStop(0, '#87CEEB');
+                gradient.addColorStop(1, '#E0F6FF');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+                // Clouds
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                for (let i = 0; i < 5; i++) {
+                    const y = (i * 150 - cameraY / 2) % gameCanvas.height;
+                    ctx.beginPath();
+                    ctx.arc(50 + i * 100, y, 30, 0, Math.PI * 2);
+                    ctx.arc(80 + i * 100, y, 35, 0, Math.PI * 2);
+                    ctx.arc(110 + i * 100, y, 30, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Physics
+                wolf.velocityY += 0.5; // gravity
+                wolf.x += wolf.velocityX;
+                wolf.y += wolf.velocityY;
+
+                // Wrap around screen
+                if (wolf.x < -20) wolf.x = gameCanvas.width + 20;
+                if (wolf.x > gameCanvas.width + 20) wolf.x = -20;
+
+                // Update camera
+                if (wolf.y < gameCanvas.height / 2) {
+                    cameraY = wolf.y - gameCanvas.height / 2;
+                }
+
+                // Check if wolf reached new height
+                if (wolf.y < highestY) {
+                    score += Math.floor((highestY - wolf.y) / 10);
+                    highestY = wolf.y;
+                    gameScore.textContent = `Score: ${score}`;
+                }
+
+                // Draw and update platforms
+                for (let i = platforms.length - 1; i >= 0; i--) {
+                    const platform = platforms[i];
+                    
+                    if (platform.type === 'moving') {
+                        platform.x += platform.direction * 2;
+                        if (platform.x < 0 || platform.x > gameCanvas.width - platform.width) {
+                            platform.direction *= -1;
+                        }
+                    }
+
+                    const screenY = platform.y - cameraY;
+                    
+                    if (screenY > gameCanvas.height + 100) {
+                        platforms.splice(i, 1);
+                        platforms.push({
+                            x: Math.random() * (gameCanvas.width - 80),
+                            y: platforms[platforms.length - 1].y - 60,
+                            width: 80,
+                            height: 15,
+                            type: Math.random() > 0.8 ? 'moving' : 'static',
+                            direction: Math.random() > 0.5 ? 1 : -1
+                        });
+                        continue;
+                    }
+
+                    // Draw platform
+                    ctx.fillStyle = platform.type === 'moving' ? '#FF6B6B' : '#2d5f3f';
+                    ctx.fillRect(platform.x, screenY, platform.width, platform.height);
+                    
+                    ctx.fillStyle = platform.type === 'moving' ? '#FF8E8E' : '#4a8f5f';
+                    ctx.fillRect(platform.x, screenY, platform.width, platform.height / 2);
+
+                    // Collision
+                    if (wolf.velocityY > 0 &&
+                        wolf.y + 20 >= platform.y &&
+                        wolf.y + 20 <= platform.y + platform.height &&
+                        wolf.x >= platform.x - 20 &&
+                        wolf.x <= platform.x + platform.width + 20) {
+                        wolf.velocityY = -12;
+                    }
+                }
+
+                drawWolf();
+
+                // Game over
+                if (wolf.y - cameraY > gameCanvas.height) {
+                    gameOver();
+                    return;
+                }
+
+                // Friction
+                wolf.velocityX *= 0.9;
+
+                // Score display
+                ctx.fillStyle = 'black';
+                ctx.font = 'bold 24px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Height: ${score}m`, 10, 30);
+
+                requestAnimationFrame(update);
+            }
+
+            function gameOver() {
+                gameRunning = false;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over!', gameCanvas.width / 2, gameCanvas.height / 2 - 20);
+                ctx.font = '24px Arial';
+                ctx.fillText(`Height: ${score}m`, gameCanvas.width / 2, gameCanvas.height / 2 + 20);
+                ctx.fillText('Click to restart', gameCanvas.width / 2, gameCanvas.height / 2 + 60);
+                
+                const restartHandler = () => {
+                    gameCanvas.removeEventListener('click', restartHandler);
+                    startWolfJump();
+                };
+                gameCanvas.addEventListener('click', restartHandler);
+            }
+
+            currentGame = {
+                stop: () => {
+                    gameRunning = false;
+                    document.removeEventListener('keydown', keyHandler);
+                }
+            };
+
+            gameScore.textContent = 'Score: 0';
+            update();
+        }
+
+        function startWolfCatch() {
+            gameCanvas.width = gameCanvas.offsetWidth;
+            gameCanvas.height = gameCanvas.offsetHeight;
+
+            const wolf = {
+                x: gameCanvas.width / 2,
+                y: gameCanvas.height - 80,
+                width: 50,
+                height: 50,
+                speed: 8
+            };
+
+            const preys = [];
+            let score = 0;
+            let missed = 0;
+            let gameRunning = true;
+            let spawnTimer = 0;
+            let gameSpeed = 2;
+
+            function mouseMoveHandler(e) {
+                const rect = gameCanvas.getBoundingClientRect();
+                wolf.x = e.clientX - rect.left - wolf.width / 2;
+            }
+
+            function touchMoveHandler(e) {
+                e.preventDefault();
+                const rect = gameCanvas.getBoundingClientRect();
+                wolf.x = e.touches[0].clientX - rect.left - wolf.width / 2;
+            }
+
+            gameCanvas.addEventListener('mousemove', mouseMoveHandler);
+            gameCanvas.addEventListener('touchmove', touchMoveHandler);
+
+            function createPrey() {
+                const types = ['🐰', '🐦', '🐿️', '🦆'];
+                preys.push({
+                    x: Math.random() * (gameCanvas.width - 40),
+                    y: -40,
+                    width: 40,
+                    height: 40,
+                    type: types[Math.floor(Math.random() * types.length)],
+                    speed: gameSpeed + Math.random() * 2
+                });
+            }
+
+            function drawWolf() {
+                ctx.save();
+                ctx.translate(wolf.x + wolf.width / 2, wolf.y + wolf.height / 2);
+                
+                // Wolf body (sitting, facing up, ready to catch)
+                ctx.fillStyle = '#8B7355';
+                ctx.fillRect(-20, -10, 40, 30);
+                
+                // Head
+                ctx.fillStyle = '#A0826D';
+                ctx.beginPath();
+                ctx.arc(0, -25, 18, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Snout (pointing up)
+                ctx.fillStyle = '#C9B8A8';
+                ctx.fillRect(-10, -20, 20, 15);
+                
+                // Eyes (looking up)
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(-7, -30, 5, 0, Math.PI * 2);
+                ctx.arc(7, -30, 5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-7, -32, 3, 0, Math.PI * 2);
+                ctx.arc(7, -32, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Nose
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(0, -18, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Mouth (excited)
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(-6, -15);
+                ctx.quadraticCurveTo(0, -12, 6, -15);
+                ctx.stroke();
+                
+                // Ears
+                ctx.fillStyle = '#8B7355';
+                ctx.beginPath();
+                ctx.moveTo(-12, -38);
+                ctx.lineTo(-8, -48);
+                ctx.lineTo(-4, -38);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.moveTo(4, -38);
+                ctx.lineTo(8, -48);
+                ctx.lineTo(12, -38);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Paws reaching up
+                ctx.fillStyle = '#6B5345';
+                ctx.fillRect(-22, -5, 8, 15);
+                ctx.fillRect(14, -5, 8, 15);
+                
+                ctx.restore();
+            }
+
+            function update() {
+                if (!gameRunning) return;
+
+                // Background
+                ctx.fillStyle = '#90EE90';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                
+                // Grass pattern
+                ctx.fillStyle = '#7CB77C';
+                for (let i = 0; i < 20; i++) {
+                    ctx.fillRect(i * 50, gameCanvas.height - 60, 30, 60);
+                }
+
+                // Spawn prey
+                spawnTimer++;
+                if (spawnTimer > 60 - score / 2) {
+                    createPrey();
+                    spawnTimer = 0;
+                }
+
+                // Update and draw prey
+                for (let i = preys.length - 1; i >= 0; i--) {
+                    const prey = preys[i];
+                    prey.y += prey.speed;
+
+                    // Draw prey
+                    ctx.font = '40px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(prey.type, prey.x + prey.width / 2, prey.y + prey.height);
+
+                    // Check collision
+                    if (prey.x < wolf.x + wolf.width &&
+                        prey.x + prey.width > wolf.x &&
+                        prey.y < wolf.y + wolf.height &&
+                        prey.y + prey.height > wolf.y) {
+                        preys.splice(i, 1);
+                        score++;
+                        gameScore.textContent = `Score: ${score} | Missed: ${missed}`;
+                        
+                        if (score % 5 === 0) {
+                            gameSpeed += 0.5;
+                        }
+                        continue;
+                    }
+
+                    // Check if missed
+                    if (prey.y > gameCanvas.height) {
+                        preys.splice(i, 1);
+                        missed++;
+                        gameScore.textContent = `Score: ${score} | Missed: ${missed}`;
+                        
+                        if (missed >= 10) {
+                            gameOver();
+                            return;
+                        }
+                    }
+                }
+
+                drawWolf();
+
+                // Display stats
+                ctx.fillStyle = 'black';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Caught: ${score}`, 10, 30);
+                ctx.fillText(`Missed: ${missed}/10`, 10, 60);
+
+                requestAnimationFrame(update);
+            }
+
+            function gameOver() {
+                gameRunning = false;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over!', gameCanvas.width / 2, gameCanvas.height / 2 - 20);
+                ctx.font = '24px Arial';
+                ctx.fillText(`You caught ${score} prey!`, gameCanvas.width / 2, gameCanvas.height / 2 + 20);
+                ctx.fillText('Click to restart', gameCanvas.width / 2, gameCanvas.height / 2 + 60);
+                
+                const restartHandler = () => {
+                    gameCanvas.removeEventListener('click', restartHandler);
+                    startWolfCatch();
+                };
+                gameCanvas.addEventListener('click', restartHandler);
+            }
+
+            currentGame = {
+                stop: () => {
+                    gameRunning = false;
+                    gameCanvas.removeEventListener('mousemove', mouseMoveHandler);
+                    gameCanvas.removeEventListener('touchmove', touchMoveHandler);
+                }
+            };
+
+            gameScore.textContent = 'Score: 0 | Missed: 0';
+            update();
+        }
 
         function displayHistory() {
             if (savedConversations.length === 0) {
@@ -717,7 +2850,16 @@
             const lang = languageSelect.value;
             const langName = languageNames[lang];
             const personality = personalities[personalitySelect.value];
-            const systemPrompt = personality + (lang !== 'en-US' && lang !== 'en-GB' ? ` Always respond in ${langName}.` : '');
+            
+            // Build system prompt with specific language instructions
+            let systemPrompt = personality;
+            
+            if (lang.includes('-NG')) {
+                // Nigerian languages need explicit instructions
+                systemPrompt += languageInstructions[lang];
+            } else if (lang !== 'en-US' && lang !== 'en-GB') {
+                systemPrompt += ` Always respond in ${langName}. Do not use English.`;
+            }
 
             try {
                 const response = await fetch(API_ENDPOINT, {
